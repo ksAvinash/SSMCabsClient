@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">SSM Cabs Client</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_feedback">Feedback</string>
+    <string name="maps_v2_api_key">AIzaSyBD2iC-g6uE7oTo7br8gcAQiuVHmA-8ub4</string>
+</resources>

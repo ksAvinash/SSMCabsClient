@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ProfileActivity">
+
+
+    <com.labs.ssmcabs.client.fonts.DecurionOutlineFont
+        android:layout_margin="30dp"
+        android:id="@+id/rand1"
+        android:textSize="40sp"
+        android:text="PROFILE"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/colorPrimaryDark"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:layout_below="@+id/rand1"
+        android:layout_margin="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="enter your name"
+        android:id="@+id/user_name"
+        />
+
+    <EditText
+        android:inputType="phone"
+        android:hint="phone number (optional)"
+        android:layout_margin="20dp"
+        android:layout_below="@+id/user_name"
+        android:id="@+id/user_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:background="@drawable/rounded_button"
+        android:textColor="@color/whiteColor"
+        android:text="SUBMIT"
+        android:textSize="22sp"
+        android:layout_margin="30dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/user_number"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/profile_submit_button"
+        />
+
+</RelativeLayout>
