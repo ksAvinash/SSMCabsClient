@@ -49,14 +49,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.labs.ssmcabs.client.helper.CoordinateAdapter;
+import com.sa90.materialarcmenu.ArcMenu;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
-        implements OnMapReadyCallback {
+        implements OnMapReadyCallback, View.OnClickListener {
 
     private GoogleMap mMap;
     private LatLng driverLatLng;
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity
     boolean doubleBackToExitPressedOnce = false;
     FirebaseDatabase database;
     Switch phoneVisibilitySwitch;
+    ArcMenu arcMenu;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -163,43 +166,29 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+
+
     private void initializeViews(){
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         phoneVisibilitySwitch = findViewById(R.id.phoneVisibilitySwitch);
         database = FirebaseDatabase.getInstance();
-
-
+        arcMenu = findViewById(R.id.arcMenu);
 
         FloatingActionButton call_driver_fb = findViewById(R.id.call_driver_fb);
-        call_driver_fb.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String driver_number = fetchDriverPhoneNo();
-                Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:"+driver_number));
-                startActivity(intent);
-            }
-        });
+        call_driver_fb.setOnClickListener(this);
 
+        FloatingActionButton user_board_logs_fb = findViewById(R.id.user_board_logs_fb);
+        user_board_logs_fb.setOnClickListener(this);
 
         last_updated_tab = findViewById(R.id.last_updated_tab);
+        last_updated_tab.setOnClickListener(this);
+
         last_updated_text = findViewById(R.id.last_updated_text);
-        last_updated_tab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Snackbar.make(v, "Location last updated at "+last_updated_time, Snackbar.LENGTH_SHORT).show();
-            }
-        });
-        last_updated_text.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Snackbar.make(v, "Location last updated at "+last_updated_time, Snackbar.LENGTH_SHORT).show();
-            }
-        });
+        last_updated_text.setOnClickListener(this);
+
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapview);
         mapFragment.getMapAsync(this);
-
 
 
         setPhoneVisibilitySwitchState();
@@ -217,6 +206,8 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
+
+
 
     private void setPhoneVisibilitySwitchState(){
         SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
@@ -387,4 +378,48 @@ public class MainActivity extends AppCompatActivity
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(driverLatLng,  (float)15));
     }
 
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.update_profile_fb:
+                arcMenu.toggleMenu();
+                break;
+
+
+            case R.id.call_driver_fb:
+                    arcMenu.toggleMenu();
+                    Snackbar.make(view, "Calling driver..", Snackbar.LENGTH_SHORT).show();
+                    System.out.println(new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            String driver_number = fetchDriverPhoneNo();
+                            Intent intent = new Intent(Intent.ACTION_DIAL);
+                            intent.setData(Uri.parse("tel:"+driver_number));
+                            startActivity(intent);
+                        }
+                    }, 500));
+                break;
+
+            case R.id.user_board_logs_fb:
+                    arcMenu.toggleMenu();
+                    Date date = new Date();
+                    SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    SimpleDateFormat time_formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                    DatabaseReference userBoardLogRef = database.getReference("user_board_logs/"+fetchDriverPhoneNo()+"/"+date_formatter.format(date)+"/"+fetchUserName());
+                    HashMap<String, String> map = new HashMap<>();
+                    map.put("board_time", time_formatter.format(date));
+                    map.put("phone_number", fetchUserPhoneNumber());
+                    userBoardLogRef.setValue(map);
+                    Snackbar.make(view, "You boarded the cab today at :"+time_formatter.format(date), Snackbar.LENGTH_LONG).show();
+                break;
+
+            case R.id.last_updated_tab:
+                    Snackbar.make(view, "Location last updated at "+last_updated_time, Snackbar.LENGTH_SHORT).show();
+                break;
+
+            case R.id.last_updated_text:
+                    Snackbar.make(view, "Location last updated at "+last_updated_time, Snackbar.LENGTH_SHORT).show();
+                break;
+        }
+    }
 }

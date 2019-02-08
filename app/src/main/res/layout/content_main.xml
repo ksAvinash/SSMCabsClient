@@ -78,7 +78,7 @@
             android:layout_height="wrap_content" />
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/log_board_fb"
+            android:id="@+id/user_board_logs_fb"
             android:layout_width="wrap_content"
             android:src="@drawable/pen_icon_white"
             android:layout_height="wrap_content" />
