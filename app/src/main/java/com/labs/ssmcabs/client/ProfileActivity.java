@@ -89,6 +89,7 @@ public class ProfileActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("user_name", name);
         editor.putString("phone_number", phone);
+        editor.putBoolean("is_phone_number_visible", true);
         editor.putBoolean("is_setup_complete", true);
         editor.apply();
 

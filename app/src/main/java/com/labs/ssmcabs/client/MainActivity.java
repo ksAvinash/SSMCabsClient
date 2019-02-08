@@ -26,8 +26,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,7 +66,7 @@ public class MainActivity extends AppCompatActivity
     boolean doubleBackToExitPressedOnce = false;
     FirebaseDatabase database;
     Button call_driver_button;
-
+    Switch phoneVisibilitySwitch;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -175,6 +177,7 @@ public class MainActivity extends AppCompatActivity
     private void initializeViews(){
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        phoneVisibilitySwitch = findViewById(R.id.phoneVisibilitySwitch);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -213,6 +216,52 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
             }
         });
+
+        setPhoneVisibilitySwitchState();
+        phoneVisibilitySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    Snackbar.make(buttonView, "Showing phone number to driver", Snackbar.LENGTH_SHORT).show();
+                    setPhoneVisibilitySwitchState(true);
+                }
+                else{
+                    Snackbar.make(buttonView, "Phone number not shown to driver ", Snackbar.LENGTH_SHORT).show();
+                    setPhoneVisibilitySwitchState(false);
+                }
+            }
+        });
+    }
+
+    private void setPhoneVisibilitySwitchState(){
+        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
+        boolean state = sharedPreferences.getBoolean("is_phone_number_visible", false);
+        if(state){
+            phoneVisibilitySwitch.setText("Phone number visible to driver");
+            phoneVisibilitySwitch.setChecked(true);
+        }else{
+            phoneVisibilitySwitch.setText("Phone number not shown");
+            phoneVisibilitySwitch.setChecked(false);
+        }
+    }
+
+
+    private void setPhoneVisibilitySwitchState(boolean new_state){
+        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("is_phone_number_visible", new_state);
+        editor.apply();
+
+        DatabaseReference userRef = database.getReference("stops/"+fetchMyStopName()+"/users/"+fetchUserName());
+        if(new_state){
+            userRef.setValue(fetchUserPhoneNumber());
+            phoneVisibilitySwitch.setText("Phone number visible to driver");
+            phoneVisibilitySwitch.setChecked(true);
+        }else{
+            userRef.setValue("0000000000");
+            phoneVisibilitySwitch.setText("Phone number not shown");
+            phoneVisibilitySwitch.setChecked(false);
+        }
     }
 
 
@@ -281,12 +330,21 @@ public class MainActivity extends AppCompatActivity
         return sharedPreferences.getString("driver_number", "");
     }
 
+    private String fetchUserName(){
+        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
+        return sharedPreferences.getString("user_name", "");
+    }
+
+    private String fetchUserPhoneNumber(){
+        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
+        return sharedPreferences.getString("phone_number", "");
+    }
+
 
     private String fetchDriverName(){
         SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
         return sharedPreferences.getString("driver_name", "");
     }
-
 
     private Double fetchMyStopLatitude(){
         SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
@@ -302,7 +360,7 @@ public class MainActivity extends AppCompatActivity
 
     private String fetchMyStopName(){
         SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        return convertStopName(sharedPreferences.getString("stop_name", ""));
+        return sharedPreferences.getString("stop_name", "");
     }
 
 
@@ -318,7 +376,7 @@ public class MainActivity extends AppCompatActivity
 
     private void setMyStopMarker(){
         LatLng myLatLng = new LatLng(fetchMyStopLatitude(), fetchMyStopLongitude());
-        MarkerOptions myMarkerOptions = new MarkerOptions().position(myLatLng).title(fetchMyStopName())
+        MarkerOptions myMarkerOptions = new MarkerOptions().position(myLatLng).title(convertStopName(fetchMyStopName()))
                 .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("stop",150,150)));
         myMarker = mMap.addMarker(myMarkerOptions);
 

@@ -10,7 +10,25 @@
     tools:showIn="@layout/app_bar_main">
 
 
+    <RelativeLayout
+        android:id="@+id/toggleBar"
+        android:background="@color/whiteColor"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        >
+        <Switch
+            android:id="@+id/phoneVisibilitySwitch"
+            android:padding="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textSize="16sp"
+            />
+    </RelativeLayout>
+
+
     <fragment
+        android:layout_below="@+id/toggleBar"
         android:id="@+id/mapview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -31,6 +49,7 @@
         />
 
     <RelativeLayout
+        android:layout_marginTop="40dp"
         android:layout_alignParentTop="true"
         android:id="@+id/last_updated_tab"
         android:layout_width="match_parent"
