@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    tools:showIn="@layout/app_bar_main">
+    tools:showIn="@layout/activity_main">
 
 
     <RelativeLayout
@@ -15,7 +15,7 @@
         android:background="@color/whiteColor"
         android:layout_alignParentTop="true"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="50dp"
         >
         <Switch
             android:id="@+id/phoneVisibilitySwitch"
@@ -35,21 +35,8 @@
         tools:context=".MainActivity"
         class="com.google.android.gms.maps.MapFragment" />
 
-
-    <Button
-        android:layout_alignParentBottom="true"
-        android:id="@+id/call_driver_button"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_margin="15dp"
-        android:text="call  driver"
-        android:textSize="22sp"
-        android:background="@drawable/rounded_button"
-        android:textColor="@color/whiteColor"
-        />
-
     <RelativeLayout
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="50dp"
         android:layout_alignParentTop="true"
         android:id="@+id/last_updated_tab"
         android:layout_width="match_parent"
@@ -66,5 +53,35 @@
             />
     </RelativeLayout>
 
+
+    <com.sa90.materialarcmenu.ArcMenu
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="12dp"
+        android:id="@+id/arcMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:menu_scr="@drawable/list_icon_white"
+        app:menu_open="arc_left">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/call_driver_fb"
+            android:layout_width="wrap_content"
+            android:src="@drawable/phone_white"
+            android:layout_height="wrap_content" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/update_profile_fb"
+            android:layout_width="wrap_content"
+            android:src="@drawable/profile_icon_white"
+            android:layout_height="wrap_content" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/log_board_fb"
+            android:layout_width="wrap_content"
+            android:src="@drawable/pen_icon_white"
+            android:layout_height="wrap_content" />
+    </com.sa90.materialarcmenu.ArcMenu>
 
 </RelativeLayout>

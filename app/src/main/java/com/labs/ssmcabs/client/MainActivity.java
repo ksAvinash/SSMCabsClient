@@ -24,6 +24,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -55,7 +56,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+        implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private LatLng driverLatLng;
@@ -65,12 +66,14 @@ public class MainActivity extends AppCompatActivity
     private RelativeLayout last_updated_tab;
     boolean doubleBackToExitPressedOnce = false;
     FirebaseDatabase database;
-    Button call_driver_button;
     Switch phoneVisibilitySwitch;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         setContentView(R.layout.activity_main);
         initializeViews();
     }
@@ -79,26 +82,21 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            if(fragmentManager.getBackStackEntryCount() > 0)
+        if(fragmentManager.getBackStackEntryCount() > 0)
+            super.onBackPressed();
+        else {
+            if (doubleBackToExitPressedOnce)
                 super.onBackPressed();
-            else {
-                if (doubleBackToExitPressedOnce)
-                    super.onBackPressed();
 
-                this.doubleBackToExitPressedOnce = true;
-                Toast.makeText(this, "Double tap BACK to exit", Toast.LENGTH_SHORT).show();
+            this.doubleBackToExitPressedOnce = true;
+            Toast.makeText(this, "Double tap BACK to exit", Toast.LENGTH_SHORT).show();
 
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        doubleBackToExitPressedOnce = false;
-                    }
-                }, 1000);
-            }
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    doubleBackToExitPressedOnce = false;
+                }
+            }, 1000);
         }
     }
 
@@ -126,15 +124,6 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -178,18 +167,22 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         phoneVisibilitySwitch = findViewById(R.id.phoneVisibilitySwitch);
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
         database = FirebaseDatabase.getInstance();
-        call_driver_button = findViewById(R.id.call_driver_button);
+
+
+
+        FloatingActionButton call_driver_fb = findViewById(R.id.call_driver_fb);
+        call_driver_fb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String driver_number = fetchDriverPhoneNo();
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:"+driver_number));
+                startActivity(intent);
+            }
+        });
+
+
         last_updated_tab = findViewById(R.id.last_updated_tab);
         last_updated_text = findViewById(R.id.last_updated_text);
         last_updated_tab.setOnClickListener(new View.OnClickListener() {
@@ -207,15 +200,7 @@ public class MainActivity extends AppCompatActivity
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapview);
         mapFragment.getMapAsync(this);
 
-        call_driver_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String driver_number = fetchDriverPhoneNo();
-                Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:"+driver_number));
-                startActivity(intent);
-            }
-        });
+
 
         setPhoneVisibilitySwitchState();
         phoneVisibilitySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
