@@ -25,7 +25,7 @@ public class SplasherActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 }
-            }, 3000);
+            }, 2000);
         else
             new Handler().postDelayed(new Runnable() {
                 @Override

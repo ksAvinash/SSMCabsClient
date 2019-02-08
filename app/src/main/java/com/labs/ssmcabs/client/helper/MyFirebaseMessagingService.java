@@ -16,6 +16,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.labs.ssmcabs.client.MainActivity;
 import com.labs.ssmcabs.client.R;
+import com.labs.ssmcabs.client.SplasherActivity;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "FB_MSG_SERVICE";
@@ -37,7 +38,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.i(TAG, "received notification "+status);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, SplasherActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder notificationBuilder = null;
