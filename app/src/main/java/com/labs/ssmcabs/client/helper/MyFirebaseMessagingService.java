@@ -14,7 +14,6 @@ import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.labs.ssmcabs.client.MainActivity;
 import com.labs.ssmcabs.client.R;
 import com.labs.ssmcabs.client.SplasherActivity;
 

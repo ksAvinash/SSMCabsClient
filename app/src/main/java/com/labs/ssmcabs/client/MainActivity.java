@@ -1,5 +1,6 @@
 package com.labs.ssmcabs.client;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -8,25 +9,22 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -181,6 +179,9 @@ public class MainActivity extends AppCompatActivity
         FloatingActionButton user_board_logs_fb = findViewById(R.id.user_board_logs_fb);
         user_board_logs_fb.setOnClickListener(this);
 
+        FloatingActionButton update_profile_fb = findViewById(R.id.update_profile_fb);
+        update_profile_fb.setOnClickListener(this);
+
         last_updated_tab = findViewById(R.id.last_updated_tab);
         last_updated_tab.setOnClickListener(this);
 
@@ -306,6 +307,11 @@ public class MainActivity extends AppCompatActivity
         return sharedPreferences.getString("driver_number", "");
     }
 
+    private String fetchDriverVehicleNumber(){
+        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
+        return sharedPreferences.getString("vehicle_number", "");
+    }
+
     private String fetchUserName(){
         SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
         return sharedPreferences.getString("user_name", "");
@@ -342,6 +348,10 @@ public class MainActivity extends AppCompatActivity
 
     private String convertStopName(String stop_name){
         String[] words = stop_name.split("_");
+        if(words.length == 1)
+            return words[0];
+
+
         String res_name  = "";
         for(String word : words){
             res_name += word.substring(0, 1).toUpperCase()+word.substring(1)+" ";
@@ -360,6 +370,48 @@ public class MainActivity extends AppCompatActivity
         MarkerOptions myMarkerOptions2 = new MarkerOptions().position(driverLatLng).title(fetchDriverName())
                 .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("my_location",100,186)));
         myMarker = mMap.addMarker(myMarkerOptions2);
+        myMarker.setTitle(fetchDriverName());
+        myMarker.setSnippet(fetchDriverVehicleNumber());
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker arg0) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+                Context context = getApplicationContext();
+                LinearLayout outer = new LinearLayout(context);
+                outer.setOrientation(LinearLayout.VERTICAL);
+
+                CardView profile_card = new CardView(context);
+                profile_card.setPadding(8, 12, 8, 12);
+                profile_card.setBackgroundColor(Color.WHITE);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    profile_card.setElevation((float) 4);
+                }
+                TextView title = new TextView(context);
+                title.setTextColor(Color.BLACK);
+                title.setGravity(Gravity.CENTER);
+                title.setTextSize((float)18);
+                title.setTypeface(null, Typeface.BOLD);
+                title.setText(marker.getTitle());
+                profile_card.addView(title);
+
+                CardView details_card = new CardView(context);
+                TextView snippet = new TextView(context);
+                snippet.setTextColor(Color.GRAY);
+                snippet.setTextSize((float)14);
+                snippet.setText("Vehicle Number : "+marker.getSnippet());
+                details_card.addView(snippet);
+
+                outer.addView(profile_card);
+                outer.addView(details_card);
+                return outer;
+            }
+        });
+
     }
 
 
@@ -373,7 +425,6 @@ public class MainActivity extends AppCompatActivity
     private void updateDriverMarKer(Double latitude, Double longitude, String last_updated){
         last_updated_time = last_updated;
         driverLatLng = new LatLng(latitude, longitude);
-        myMarker.setTitle(last_updated);
         myMarker.setPosition(driverLatLng);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(driverLatLng,  (float)15));
     }
@@ -382,7 +433,7 @@ public class MainActivity extends AppCompatActivity
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.update_profile_fb:
-                arcMenu.toggleMenu();
+                    arcMenu.toggleMenu();
                 break;
 
 
