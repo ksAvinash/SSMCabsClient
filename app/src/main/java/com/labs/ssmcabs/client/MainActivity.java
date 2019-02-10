@@ -38,6 +38,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
@@ -133,7 +134,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        setMyStopMarker();
+        setupMarkers();
 
 
         try {
@@ -250,8 +251,10 @@ public class MainActivity extends AppCompatActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.i("FB_MAP_UPDATE", "last updated value is: " + dataSnapshot.getValue());
                 CoordinateAdapter myAdaptor = dataSnapshot.getValue(CoordinateAdapter.class);
-                if(myAdaptor != null)
-                    updateDriverMarKer(myAdaptor.getLatitude(), myAdaptor.getLongitude(), myAdaptor.getLast_updated());
+                if(myAdaptor != null){
+                    updateDriverMarKer(myAdaptor.getLatitude(), myAdaptor.getLongitude(), myAdaptor.getLast_updated(), myAdaptor.getBearing());
+
+                }
 
             }
 
@@ -319,7 +322,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private void setMyStopMarker(){
+    private void setupMarkers(){
         LatLng myLatLng = new LatLng(SharedPreferenceHelper.fetchMyStopLatitude(MainActivity.this), SharedPreferenceHelper.fetchMyStopLongitude(MainActivity.this));
 
         MarkerOptions myMarkerOptions = new MarkerOptions().position(myLatLng).title(convertStopName(SharedPreferenceHelper.fetchStopName(MainActivity.this)))
@@ -329,9 +332,11 @@ public class MainActivity extends AppCompatActivity
         driverLatLng = new LatLng(0.0, 0.0);
         MarkerOptions myMarkerOptions2 = new MarkerOptions().position(driverLatLng).title(SharedPreferenceHelper.fetchDriverName(MainActivity.this))
                 .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("my_location",100,186)));
+
         myMarker = mMap.addMarker(myMarkerOptions2);
         myMarker.setTitle(SharedPreferenceHelper.fetchDriverName(MainActivity.this));
         myMarker.setSnippet(SharedPreferenceHelper.fetchDriverVehicleNumber(MainActivity.this));
+
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
             @Override
             public View getInfoWindow(Marker arg0) {
@@ -382,11 +387,22 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private void updateDriverMarKer(Double latitude, Double longitude, String last_updated){
+    private void updateDriverMarKer(Double latitude, Double longitude, String last_updated, Float bearing){
         last_updated_time = last_updated;
         driverLatLng = new LatLng(latitude, longitude);
+
         myMarker.setPosition(driverLatLng);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(driverLatLng,  (float)15));
+        myMarker.setRotation(bearing);
+        myMarker.setAnchor(0.5f, 0.5f);
+        myMarker.setFlat(true);
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(driverLatLng)
+                .zoom(16)
+                .bearing(bearing)
+                .tilt(0)
+                .build();
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     @Override

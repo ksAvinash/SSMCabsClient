@@ -8,6 +8,7 @@ import java.util.Locale;
 public class CoordinateAdapter {
     private String driver_name, driver_number, last_updated, vehicle_number, vehicle_type;
     private Double latitude, longitude;
+    private Float accuracy, bearing;
 
     public CoordinateAdapter(){}
 
@@ -18,8 +19,17 @@ public class CoordinateAdapter {
         this.vehicle_number = vehicle_number;
     }
 
+    public Float getAccuracy() {
+        return accuracy;
+    }
 
-    public CoordinateAdapter(String driver_name, String driver_number, Double latitude, Double longitude, String vehicle_number, String vehicle_type) {
+    public Float getBearing() {
+        return bearing;
+    }
+
+    public CoordinateAdapter(String driver_name, String driver_number, Double latitude, Double longitude, String vehicle_number, String vehicle_type, Float accuracy, Float bearing) {
+        this.accuracy = accuracy;
+        this.bearing = bearing;
         this.driver_name = driver_name;
         this.driver_number = driver_number;
         this.latitude = latitude;
