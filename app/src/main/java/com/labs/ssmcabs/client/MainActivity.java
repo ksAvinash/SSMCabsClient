@@ -43,12 +43,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.labs.ssmcabs.client.helper.CoordinateAdapter;
+import com.labs.ssmcabs.client.helper.HttpHelper;
+import com.labs.ssmcabs.client.helper.PolyLineTaskLoadedCallback;
 import com.labs.ssmcabs.client.helper.SharedPreferenceHelper;
 import com.sa90.materialarcmenu.ArcMenu;
 
@@ -59,7 +63,7 @@ import java.util.HashMap;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
-        implements OnMapReadyCallback, View.OnClickListener {
+        implements OnMapReadyCallback, View.OnClickListener, PolyLineTaskLoadedCallback {
 
     private GoogleMap mMap;
     private LatLng driverLatLng;
@@ -71,7 +75,8 @@ public class MainActivity extends AppCompatActivity
     FirebaseDatabase database;
     Switch phoneVisibilitySwitch;
     ArcMenu arcMenu;
-
+    private Polyline currentPolyline;
+    boolean isPathSet = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,8 +87,29 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_main);
         initializeViews();
+
     }
 
+    private void setUpPathToMyStop(LatLng updated_location){
+        if(!isPathSet){
+            new HttpHelper.FetchMapDirectionsTask(MainActivity.this).execute(new LatLng(SharedPreferenceHelper.fetchMyStopLatitude(MainActivity.this),
+                    SharedPreferenceHelper.fetchMyStopLongitude(MainActivity.this)), updated_location);
+            isPathSet = true;
+        }
+    }
+
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        isPathSet = false;
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        isPathSet = false;
+    }
 
     @Override
     public void onBackPressed() {
@@ -253,7 +279,7 @@ public class MainActivity extends AppCompatActivity
                 CoordinateAdapter myAdaptor = dataSnapshot.getValue(CoordinateAdapter.class);
                 if(myAdaptor != null){
                     updateDriverMarKer(myAdaptor.getLatitude(), myAdaptor.getLongitude(), myAdaptor.getLast_updated(), myAdaptor.getBearing());
-
+                    setUpPathToMyStop(new LatLng(myAdaptor.getLatitude(), myAdaptor.getLongitude()));
                 }
 
             }
@@ -264,6 +290,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
+
 
 
     private void displayLastUpdated(){
@@ -304,8 +331,6 @@ public class MainActivity extends AppCompatActivity
         }
         displayLastUpdated();
     }
-
-
 
 
     private String convertStopName(String stop_name){
@@ -443,7 +468,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
     private void updateBoardedTime(){
         Snackbar.make(findViewById(android.R.id.content), "Your cab board time has been recorded", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
@@ -478,5 +502,13 @@ public class MainActivity extends AppCompatActivity
 
 
 
+    }
+
+    @Override
+    public void onTaskDone(Object... values) {
+        Log.i("MAP_API_MAIN", "onTaskDone interface invoked");
+        if (currentPolyline != null)
+            currentPolyline.remove();
+        currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
     }
 }
