@@ -432,6 +432,7 @@ public class MainActivity extends AppCompatActivity
         Snackbar.make(findViewById(android.R.id.content), "Your cab board time has been recorded", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
         final Date date = new Date();
+
         final SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd a", Locale.getDefault());
         final DatabaseReference userBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchUserPhoneNumber(MainActivity.this)+"/"+date_formatter.format(date)+"/");
         userBoardLogRef.addValueEventListener(new ValueEventListener() {
@@ -444,6 +445,7 @@ public class MainActivity extends AppCompatActivity
                     HashMap<String, String> map = new HashMap<>();
                     map.put("board_time", time_formatter.format(date));
                     userBoardLogRef.setValue(map);
+                    SharedPreferenceHelper.saveLastBoardTime(MainActivity.this, time_formatter.format(date));
                     Log.i("BOARD_TIME", date_formatter.format(date));
                 }else{
                     Log.i("BOARD_TIME", "Cab already boarded today");

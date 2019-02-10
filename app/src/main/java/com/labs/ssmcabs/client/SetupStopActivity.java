@@ -54,12 +54,17 @@ public class SetupStopActivity extends AppCompatActivity {
         stop_list = findViewById(R.id.stop_list);
         context = SetupStopActivity.this;
         database = FirebaseDatabase.getInstance();
-
-
         progressDialog = new ProgressDialog(SetupStopActivity.this);
-        progressDialog.setMessage("Fetching all stops..");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
+
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                progressDialog.setMessage("Fetching all stops..");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+            }
+        }, 100);
     }
 
 
@@ -71,8 +76,13 @@ public class SetupStopActivity extends AppCompatActivity {
                 stopsReference.removeEventListener(this);
                 stopAdapterList.clear();
 
-                if(progressDialog.isShowing())
-                    progressDialog.dismiss();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(progressDialog.isShowing())
+                            progressDialog.dismiss();
+                    }
+                }, 1000);
 
                 Log.d(TAG, "All stops : "+dataSnapshot.getValue());
 

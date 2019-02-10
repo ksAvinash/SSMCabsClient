@@ -2,6 +2,12 @@ package com.labs.ssmcabs.client.helper;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -66,12 +72,34 @@ public class SharedPreferenceHelper {
 
 
 
+    public static boolean isLastBoardDateValid(Context context){
+        Date date = new Date();
+        SharedPreferences sharedPreferences = context.getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
+        SimpleDateFormat time_formatter = new SimpleDateFormat("yyyy-MM-dd h:mm:ss a", Locale.getDefault());
+
+        try {
+            Date last_board_date = time_formatter.parse(sharedPreferences.getString("last_board_time", ""));
+            long difference = date.getTime() - last_board_date.getTime();
+            final int diffInDays = (int)(difference / (1000 * 60 * 60 * 24));
+            Log.d("LAST_BOARD", "days : "+diffInDays);
+
+            return diffInDays < 3;
+        }catch (ParseException e){
+            return false;
+        }
+    }
 
 
 
 
 
 
+    public static void saveLastBoardTime(Context context, String last_board_time){
+        SharedPreferences sharedPreferences = context.getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("last_board_time", last_board_time);
+        editor.apply();
+    }
 
 
 
@@ -83,7 +111,6 @@ public class SharedPreferenceHelper {
         editor.putString("driver_number", driver_number);
         editor.apply();
     }
-
 
     public static void saveDriverDetails(Context context, String driver_name, String vehicle_number, String vehicle_type){
         SharedPreferences sharedPreferences = context.getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Window;
@@ -32,7 +33,7 @@ public class SplasherActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance();
 
 
-        if(SharedPreferenceHelper.isStopSetupComplete(SplasherActivity.this)){
+        if(SharedPreferenceHelper.isStopSetupComplete(SplasherActivity.this) && SharedPreferenceHelper.isLastBoardDateValid(SplasherActivity.this)){
             updateStopDriverNumber();
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -43,6 +44,11 @@ public class SplasherActivity extends AppCompatActivity {
                 }
             }, 3000);
         }else{
+
+            Snackbar.make(findViewById(android.R.id.content), "Last cab boarding was more than 3 days ago!", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+            removeUserFromStop();
+
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -52,6 +58,13 @@ public class SplasherActivity extends AppCompatActivity {
                 }
             }, 3000);
         }
+    }
+
+
+    private void removeUserFromStop(){
+        DatabaseReference myRef = database.getReference("stops/"+ SharedPreferenceHelper.fetchStopName(SplasherActivity.this)
+                +"/users/"+SharedPreferenceHelper.fetchUserName(SplasherActivity.this));
+        myRef.removeValue();
     }
 
 
