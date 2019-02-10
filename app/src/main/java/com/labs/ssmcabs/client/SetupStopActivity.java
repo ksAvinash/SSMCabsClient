@@ -1,5 +1,6 @@
 package com.labs.ssmcabs.client;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -38,6 +39,7 @@ public class SetupStopActivity extends AppCompatActivity {
     List<stopAdapter> stopAdapterList = new ArrayList<>();
     Context context;
     FirebaseDatabase database;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,12 @@ public class SetupStopActivity extends AppCompatActivity {
         stop_list = findViewById(R.id.stop_list);
         context = SetupStopActivity.this;
         database = FirebaseDatabase.getInstance();
+
+
+        progressDialog = new ProgressDialog(SetupStopActivity.this);
+        progressDialog.setMessage("Fetching all stops..");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
     }
 
 
@@ -60,7 +68,12 @@ public class SetupStopActivity extends AppCompatActivity {
         stopsReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                stopsReference.removeEventListener(this);
                 stopAdapterList.clear();
+
+                if(progressDialog.isShowing())
+                    progressDialog.dismiss();
+
                 Log.d(TAG, "All stops : "+dataSnapshot.getValue());
 
                 for(DataSnapshot stop: dataSnapshot.getChildren()){
@@ -69,12 +82,15 @@ public class SetupStopActivity extends AppCompatActivity {
                     stopAdapterList.add(temp);
                 }
                 displayStopList();
-                stopsReference.removeEventListener(this);
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e(TAG, "Error fetching database :"+ databaseError.toException());
                 stopsReference.removeEventListener(this);
+
+                if(progressDialog.isShowing())
+                    progressDialog.dismiss();
+
+                Log.e(TAG, "Error fetching database :"+ databaseError.toException());
 
                 Toast.makeText(SetupStopActivity.this, "Error fetching stops, try later", Toast.LENGTH_SHORT).show();
                 new Handler().postDelayed(new Runnable() {
