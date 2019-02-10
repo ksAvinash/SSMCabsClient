@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
@@ -47,6 +48,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.labs.ssmcabs.client.helper.CoordinateAdapter;
+import com.labs.ssmcabs.client.helper.SharedPreferenceHelper;
 import com.sa90.materialarcmenu.ArcMenu;
 
 import java.text.ParseException;
@@ -68,6 +70,8 @@ public class MainActivity extends AppCompatActivity
     FirebaseDatabase database;
     Switch phoneVisibilitySwitch;
     ArcMenu arcMenu;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,7 +157,7 @@ public class MainActivity extends AppCompatActivity
         }).start();
 
 
-        String driver_number = fetchDriverPhoneNo();
+        String driver_number = SharedPreferenceHelper.fetchDriverPhoneNo(MainActivity.this);
         if(driver_number.equals("")){
             Log.e("SP_SAVED", "saved shared preference driver_number: " + driver_number);
             finish();
@@ -211,8 +215,7 @@ public class MainActivity extends AppCompatActivity
 
 
     private void setPhoneVisibilitySwitchState(){
-        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        boolean state = sharedPreferences.getBoolean("is_phone_number_visible", false);
+        boolean state = SharedPreferenceHelper.fetchPhoneNumberVisibilityStatus(MainActivity.this);
         if(state){
             phoneVisibilitySwitch.setText("Phone number visible to driver");
             phoneVisibilitySwitch.setChecked(true);
@@ -224,14 +227,12 @@ public class MainActivity extends AppCompatActivity
 
 
     private void setPhoneVisibilitySwitchState(boolean new_state){
-        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean("is_phone_number_visible", new_state);
-        editor.apply();
+        SharedPreferenceHelper.savePhoneNumberVisibilityStatus(MainActivity.this, new_state);
 
-        DatabaseReference userRef = database.getReference("stops/"+fetchMyStopName()+"/users/"+fetchUserName());
+        DatabaseReference userRef = database.getReference("stops/"+SharedPreferenceHelper.fetchStopName(MainActivity.this)
+                +"/users/"+SharedPreferenceHelper.fetchUserName(MainActivity.this));
         if(new_state){
-            userRef.setValue(fetchUserPhoneNumber());
+            userRef.setValue(SharedPreferenceHelper.fetchUserPhoneNumber(MainActivity.this));
             phoneVisibilitySwitch.setText("Phone number visible to driver");
             phoneVisibilitySwitch.setChecked(true);
         }else{
@@ -243,7 +244,7 @@ public class MainActivity extends AppCompatActivity
 
 
     private void setFirebaseLocationListener(){
-        DatabaseReference myRef = database.getReference("location_coordinates/"+fetchDriverPhoneNo());
+        DatabaseReference myRef = database.getReference("location_coordinates/"+SharedPreferenceHelper.fetchDriverPhoneNo(MainActivity.this));
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -302,48 +303,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private String fetchDriverPhoneNo(){
-        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        return sharedPreferences.getString("driver_number", "");
-    }
-
-    private String fetchDriverVehicleNumber(){
-        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        return sharedPreferences.getString("vehicle_number", "");
-    }
-
-    private String fetchUserName(){
-        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        return sharedPreferences.getString("user_name", "");
-    }
-
-    private String fetchUserPhoneNumber(){
-        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        return sharedPreferences.getString("phone_number", "");
-    }
-
-
-    private String fetchDriverName(){
-        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        return sharedPreferences.getString("driver_name", "");
-    }
-
-    private Double fetchMyStopLatitude(){
-        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        return Double.longBitsToDouble(sharedPreferences.getLong("latitude", Double.doubleToLongBits(0)));
-    }
-
-
-    private Double fetchMyStopLongitude(){
-        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        return Double.longBitsToDouble(sharedPreferences.getLong("longitude", Double.doubleToLongBits(0)));
-    }
-
-
-    private String fetchMyStopName(){
-        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        return sharedPreferences.getString("stop_name", "");
-    }
 
 
     private String convertStopName(String stop_name){
@@ -361,17 +320,18 @@ public class MainActivity extends AppCompatActivity
 
 
     private void setMyStopMarker(){
-        LatLng myLatLng = new LatLng(fetchMyStopLatitude(), fetchMyStopLongitude());
-        MarkerOptions myMarkerOptions = new MarkerOptions().position(myLatLng).title(convertStopName(fetchMyStopName()))
+        LatLng myLatLng = new LatLng(SharedPreferenceHelper.fetchMyStopLatitude(MainActivity.this), SharedPreferenceHelper.fetchMyStopLongitude(MainActivity.this));
+
+        MarkerOptions myMarkerOptions = new MarkerOptions().position(myLatLng).title(convertStopName(SharedPreferenceHelper.fetchStopName(MainActivity.this)))
                 .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("stop",150,150)));
         myMarker = mMap.addMarker(myMarkerOptions);
 
         driverLatLng = new LatLng(0.0, 0.0);
-        MarkerOptions myMarkerOptions2 = new MarkerOptions().position(driverLatLng).title(fetchDriverName())
+        MarkerOptions myMarkerOptions2 = new MarkerOptions().position(driverLatLng).title(SharedPreferenceHelper.fetchDriverName(MainActivity.this))
                 .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("my_location",100,186)));
         myMarker = mMap.addMarker(myMarkerOptions2);
-        myMarker.setTitle(fetchDriverName());
-        myMarker.setSnippet(fetchDriverVehicleNumber());
+        myMarker.setTitle(SharedPreferenceHelper.fetchDriverName(MainActivity.this));
+        myMarker.setSnippet(SharedPreferenceHelper.fetchDriverVehicleNumber(MainActivity.this));
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
             @Override
             public View getInfoWindow(Marker arg0) {
@@ -443,7 +403,7 @@ public class MainActivity extends AppCompatActivity
                     System.out.println(new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            String driver_number = fetchDriverPhoneNo();
+                            String driver_number = SharedPreferenceHelper.fetchDriverPhoneNo(MainActivity.this);
                             Intent intent = new Intent(Intent.ACTION_DIAL);
                             intent.setData(Uri.parse("tel:"+driver_number));
                             startActivity(intent);
@@ -453,15 +413,7 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.user_board_logs_fb:
                     arcMenu.toggleMenu();
-                    Date date = new Date();
-                    SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                    SimpleDateFormat time_formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-                    DatabaseReference userBoardLogRef = database.getReference("user_board_logs/"+fetchDriverPhoneNo()+"/"+date_formatter.format(date)+"/"+fetchUserName());
-                    HashMap<String, String> map = new HashMap<>();
-                    map.put("board_time", time_formatter.format(date));
-                    map.put("phone_number", fetchUserPhoneNumber());
-                    userBoardLogRef.setValue(map);
-                    Snackbar.make(view, "You boarded the cab today at :"+time_formatter.format(date), Snackbar.LENGTH_LONG).show();
+                    updateBoardedTime();
                 break;
 
             case R.id.last_updated_tab:
@@ -472,5 +424,41 @@ public class MainActivity extends AppCompatActivity
                     Snackbar.make(view, "Location last updated at "+last_updated_time, Snackbar.LENGTH_SHORT).show();
                 break;
         }
+    }
+
+
+
+    private void updateBoardedTime(){
+        Snackbar.make(findViewById(android.R.id.content), "Your cab board time has been recorded", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
+        final Date date = new Date();
+        final SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd a", Locale.getDefault());
+        final DatabaseReference userBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchUserPhoneNumber(MainActivity.this)+"/"+date_formatter.format(date)+"/");
+        userBoardLogRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                userBoardLogRef.removeEventListener(this);
+
+                if(dataSnapshot.getValue() == null){
+                    SimpleDateFormat time_formatter = new SimpleDateFormat("yyyy-MM-dd h:mm:ss a", Locale.getDefault());
+                    HashMap<String, String> map = new HashMap<>();
+                    map.put("board_time", time_formatter.format(date));
+                    userBoardLogRef.setValue(map);
+                    Log.i("BOARD_TIME", date_formatter.format(date));
+                }else{
+                    Log.i("BOARD_TIME", "Cab already boarded today");
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                userBoardLogRef.removeEventListener(this);
+            }
+        });
+
+
+
+
     }
 }

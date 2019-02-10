@@ -1,7 +1,6 @@
 package com.labs.ssmcabs.client;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -15,7 +14,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.labs.ssmcabs.client.helper.stopAdapter;
+import com.labs.ssmcabs.client.helper.CoordinateAdapter;
+import com.labs.ssmcabs.client.helper.SharedPreferenceHelper;
 
 public class SplasherActivity extends AppCompatActivity {
 
@@ -32,9 +32,8 @@ public class SplasherActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance();
 
 
-
-        if(isStopSetupComplete()){
-            updateStopDetails();
+        if(SharedPreferenceHelper.isStopSetupComplete(SplasherActivity.this)){
+            updateStopDriverNumber();
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -53,31 +52,23 @@ public class SplasherActivity extends AppCompatActivity {
                 }
             }, 3000);
         }
-
-
     }
 
 
-    private boolean isStopSetupComplete(){
-        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        return sharedPreferences.getBoolean("is_setup_complete", false);
-    }
+    private void updateStopDriverNumber(){
+        final String stop_name = SharedPreferenceHelper.fetchStopName(this);
 
-
-    private void updateStopDetails(){
-        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        final String stop_name = sharedPreferences.getString("stop_name", "");
-
-        final DatabaseReference myStopRef = database.getReference("stops/"+stop_name);
-
+        final DatabaseReference myStopRef = database.getReference("stops/"+stop_name+"/driver_number");
         myStopRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.v(TAG, "MY_STOP : "+dataSnapshot.getValue());
-                stopAdapter adapter = dataSnapshot.getValue(stopAdapter.class);
-                adapter.setStop_name(stop_name);
-                saveStopDetails(adapter);
                 myStopRef.removeEventListener(this);
+
+                Log.v(TAG, "MY_STOP : "+dataSnapshot.getValue());
+
+                String driver_number = (String) dataSnapshot.getValue();
+                SharedPreferenceHelper.saveDriverNumber(SplasherActivity.this, stop_name, driver_number);
+                fetchDriverDetails(driver_number);
             }
 
             @Override
@@ -89,16 +80,24 @@ public class SplasherActivity extends AppCompatActivity {
     }
 
 
-    private void saveStopDetails(stopAdapter adapter){
-        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("stop_name", adapter.getStop_name());
-        editor.putString("driver_name", adapter.getDriver_name());
-        editor.putString("driver_number", adapter.getDriver_number());
-        editor.putString("vehicle_number", adapter.getVehicle_number());
-        editor.putString("vehicle_type", adapter.getVehicle_type());
-        editor.putLong("latitude", Double.doubleToRawLongBits(adapter.getLatitude()));
-        editor.putLong("longitude",Double.doubleToRawLongBits(adapter.getLongitude()));
-        editor.apply();
+    private void fetchDriverDetails(final String driver_number){
+        final DatabaseReference driverDetailsRef = database.getReference("drivers/"+driver_number);
+        driverDetailsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.v(TAG, "MY_STOP : "+dataSnapshot.getValue());
+                driverDetailsRef.removeEventListener(this);
+                CoordinateAdapter adapter = dataSnapshot.getValue(CoordinateAdapter.class);
+                if(adapter != null) {
+                    SharedPreferenceHelper.saveDriverDetails(SplasherActivity.this, adapter.getDriver_name(),
+                            adapter.getVehicle_number(), adapter.getVehicle_type());
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                driverDetailsRef.removeEventListener(this);
+                Log.w(TAG, "MY_STOP : Error fetching stop details");
+            }
+        });
     }
 }

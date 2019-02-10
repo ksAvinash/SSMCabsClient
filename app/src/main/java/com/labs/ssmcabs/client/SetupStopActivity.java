@@ -2,11 +2,10 @@ package com.labs.ssmcabs.client;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -26,6 +24,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.labs.ssmcabs.client.helper.CoordinateAdapter;
+import com.labs.ssmcabs.client.helper.SharedPreferenceHelper;
 import com.labs.ssmcabs.client.helper.stopAdapter;
 
 import java.util.ArrayList;
@@ -37,6 +37,8 @@ public class SetupStopActivity extends AppCompatActivity {
     ListView stop_list;
     List<stopAdapter> stopAdapterList = new ArrayList<>();
     Context context;
+    FirebaseDatabase database;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,11 +51,11 @@ public class SetupStopActivity extends AppCompatActivity {
     private void initializeViews(){
         stop_list = findViewById(R.id.stop_list);
         context = SetupStopActivity.this;
+        database = FirebaseDatabase.getInstance();
     }
 
 
     private void fetchAllStops(){
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference stopsReference = database.getReference("stops");
         stopsReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -93,29 +95,39 @@ public class SetupStopActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 stopAdapter selected_stop = stopAdapterList.get(position);
-                Log.d(TAG, "selected stop :"+selected_stop.getDriver_name()+" : "+selected_stop.getStop_name()+" : "+
-                        selected_stop.getDriver_number()+" : "+selected_stop.getVehicle_number()+" : "+selected_stop.getVehicle_type()+
-                        selected_stop.getLatitude()+" : "+selected_stop.getLongitude());
-                saveStopDetails(selected_stop);
+                Log.d(TAG, "selected stop :"+selected_stop.getStop_name()+":"+selected_stop.getLocality()+":"+selected_stop.getDriver_number());
+
                 subscribeToTopic(selected_stop.getStop_name());
+                SharedPreferenceHelper.saveStopDetails(SetupStopActivity.this, selected_stop);
+                fetchDriverDetails(selected_stop.getDriver_number());
                 jumpToProfileActivity(convertStopName(selected_stop.getStop_name()));
             }
         });
     }
 
 
-    private void saveStopDetails(stopAdapter selected_stop){
-        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("stop_name", selected_stop.getStop_name());
-        editor.putString("driver_name", selected_stop.getDriver_name());
-        editor.putString("driver_number", selected_stop.getDriver_number());
-        editor.putString("vehicle_number", selected_stop.getVehicle_number());
-        editor.putString("vehicle_type", selected_stop.getVehicle_type());
-        editor.putLong("latitude", Double.doubleToRawLongBits(selected_stop.getLatitude()));
-        editor.putLong("longitude",Double.doubleToRawLongBits(selected_stop.getLongitude()));
-        editor.apply();
+    private void fetchDriverDetails(final String driver_number){
+        final DatabaseReference driverDetailsRef = database.getReference("drivers/"+driver_number);
+        driverDetailsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.v(TAG, "MY_STOP : "+dataSnapshot.getValue());
+                driverDetailsRef.removeEventListener(this);
+                CoordinateAdapter adapter = dataSnapshot.getValue(CoordinateAdapter.class);
+                if(adapter != null) {
+                    SharedPreferenceHelper.saveDriverDetails(SetupStopActivity.this, adapter.getDriver_name(),
+                            adapter.getVehicle_number(), adapter.getVehicle_type());
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                driverDetailsRef.removeEventListener(this);
+                Log.w(TAG, "MY_STOP : Error fetching stop details");
+            }
+        });
     }
+
+
 
 
     private void jumpToProfileActivity(final String stop_name){
@@ -151,8 +163,8 @@ public class SetupStopActivity extends AppCompatActivity {
             TextView item_stop_name = itemView.findViewById(R.id.item_stop_name);
             item_stop_name.setText(convertStopName(current.getStop_name()));
 
-            TextView item_driver_name = itemView.findViewById(R.id.item_driver_name);
-            item_driver_name.setText("Driver name : "+current.getDriver_name());
+            TextView item_locality = itemView.findViewById(R.id.item_locality);
+            item_locality.setText(current.getLocality());
 
             return itemView;
         }
@@ -175,7 +187,7 @@ public class SetupStopActivity extends AppCompatActivity {
 
 
     private void clearPreviousTopicSubscription(){
-        FirebaseMessaging.getInstance().unsubscribeFromTopic(fetchStopName());
+        FirebaseMessaging.getInstance().unsubscribeFromTopic(SharedPreferenceHelper.fetchStopName(SetupStopActivity.this));
     }
 
 
@@ -186,10 +198,5 @@ public class SetupStopActivity extends AppCompatActivity {
             res_name += word.substring(0, 1).toUpperCase()+word.substring(1)+" ";
         }
         return res_name;
-    }
-
-    private String fetchStopName(){
-        SharedPreferences sharedPreferences = getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        return sharedPreferences.getString("stop_name", "");
     }
 }
