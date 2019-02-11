@@ -16,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
@@ -351,16 +352,17 @@ public class MainActivity extends AppCompatActivity
         LatLng myLatLng = new LatLng(SharedPreferenceHelper.fetchMyStopLatitude(MainActivity.this), SharedPreferenceHelper.fetchMyStopLongitude(MainActivity.this));
 
         MarkerOptions myMarkerOptions = new MarkerOptions().position(myLatLng).title(convertStopName(SharedPreferenceHelper.fetchStopName(MainActivity.this)))
-                .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("stop",150,150)));
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("stop",120,120)));
         myMarker = mMap.addMarker(myMarkerOptions);
+        myMarker.setSnippet("MY STOP");
 
         driverLatLng = new LatLng(0.0, 0.0);
         MarkerOptions myMarkerOptions2 = new MarkerOptions().position(driverLatLng).title(SharedPreferenceHelper.fetchDriverName(MainActivity.this))
-                .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("my_location",100,186)));
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("my_location",90,168)));
 
         myMarker = mMap.addMarker(myMarkerOptions2);
         myMarker.setTitle(SharedPreferenceHelper.fetchDriverName(MainActivity.this));
-        myMarker.setSnippet(SharedPreferenceHelper.fetchDriverVehicleNumber(MainActivity.this));
+        myMarker.setSnippet("Vehicle Number : "+SharedPreferenceHelper.fetchDriverVehicleNumber(MainActivity.this));
 
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
             @Override
@@ -370,35 +372,25 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public View getInfoContents(Marker marker) {
-                Context context = getApplicationContext();
-                LinearLayout outer = new LinearLayout(context);
-                outer.setOrientation(LinearLayout.VERTICAL);
 
-                CardView profile_card = new CardView(context);
-                profile_card.setPadding(8, 12, 8, 12);
-                profile_card.setBackgroundColor(Color.WHITE);
+                LinearLayout info = new LinearLayout(getApplicationContext());
+                info.setOrientation(LinearLayout.VERTICAL);
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    profile_card.setElevation((float) 4);
-                }
-                TextView title = new TextView(context);
-                title.setTextColor(Color.BLACK);
+                TextView title = new TextView(getApplicationContext());
+                title.setTextColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark, null));
                 title.setGravity(Gravity.CENTER);
-                title.setTextSize((float)18);
                 title.setTypeface(null, Typeface.BOLD);
                 title.setText(marker.getTitle());
-                profile_card.addView(title);
 
-                CardView details_card = new CardView(context);
-                TextView snippet = new TextView(context);
-                snippet.setTextColor(Color.GRAY);
-                snippet.setTextSize((float)14);
-                snippet.setText("Vehicle Number : "+marker.getSnippet());
-                details_card.addView(snippet);
+                TextView snippet = new TextView(getApplicationContext());
+                snippet.setTextColor(Color.BLACK);
+                snippet.setText(marker.getSnippet());
+                snippet.setGravity(Gravity.CENTER);
 
-                outer.addView(profile_card);
-                outer.addView(details_card);
-                return outer;
+                info.addView(title);
+                info.addView(snippet);
+
+                return info;
             }
         });
 
@@ -472,9 +464,12 @@ public class MainActivity extends AppCompatActivity
         Snackbar.make(findViewById(android.R.id.content), "Your cab board time has been recorded", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
         final Date date = new Date();
-
+        final SimpleDateFormat month_formatter = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
         final SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd a", Locale.getDefault());
-        final DatabaseReference userBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchUserPhoneNumber(MainActivity.this)+"/"+date_formatter.format(date)+"/");
+
+
+        final DatabaseReference userBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchUserPhoneNumber(MainActivity.this)+"/"+
+                month_formatter.format(date)+"/"+date_formatter.format(date)+"/");
         userBoardLogRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

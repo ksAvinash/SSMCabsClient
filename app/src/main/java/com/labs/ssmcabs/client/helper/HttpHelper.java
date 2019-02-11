@@ -157,7 +157,7 @@ public class HttpHelper {
                     lineOptions.width(10);
                     lineOptions.color(Color.MAGENTA);
                 } else {
-                    lineOptions.width(20);
+                    lineOptions.width(15);
                     lineOptions.color(Color.parseColor("#FF9800"));
                 }
                 Log.d(TAG2, "onPostExecute lineoptions decoded");
