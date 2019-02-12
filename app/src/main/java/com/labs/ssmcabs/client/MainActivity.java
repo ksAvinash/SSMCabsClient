@@ -461,7 +461,7 @@ public class MainActivity extends AppCompatActivity
 
 
     private void updateBoardedTime(){
-        Snackbar.make(findViewById(android.R.id.content), "Your cab board time has been recorded", Snackbar.LENGTH_LONG)
+        Snackbar.make(findViewById(android.R.id.content), "Your cab board time has been recorded for the trip!", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
         final Date date = new Date();
         final SimpleDateFormat month_formatter = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
