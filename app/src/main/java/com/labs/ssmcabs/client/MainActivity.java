@@ -380,11 +380,11 @@ public class MainActivity extends AppCompatActivity
                 title.setTextColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark, null));
                 title.setGravity(Gravity.CENTER);
                 title.setTypeface(null, Typeface.BOLD);
-                title.setText(marker.getTitle());
+                title.setText(marker.getTitle().toUpperCase());
 
                 TextView snippet = new TextView(getApplicationContext());
                 snippet.setTextColor(Color.BLACK);
-                snippet.setText(marker.getSnippet());
+                snippet.setText(marker.getSnippet().toUpperCase());
                 snippet.setGravity(Gravity.CENTER);
 
                 info.addView(title);

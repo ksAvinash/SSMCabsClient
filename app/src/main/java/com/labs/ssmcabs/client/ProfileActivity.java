@@ -15,6 +15,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.labs.ssmcabs.client.helper.SharedPreferenceHelper;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class ProfileActivity extends AppCompatActivity {
 
     EditText user_name, user_number;
@@ -48,7 +51,7 @@ public class ProfileActivity extends AppCompatActivity {
                 String name = user_name.getText().toString();
                 String phone = user_number.getText().toString();
 
-                if(name.length() == 0){
+                if(name.length() <3 || name.length() > 22 || !isUserNameValid(name)){
                     profile_submit_button.setEnabled(true);
                     Snackbar.make(findViewById(android.R.id.content), "Invalid user name!", Snackbar.LENGTH_SHORT)
                             .setAction("Action", null).show();
@@ -72,6 +75,9 @@ public class ProfileActivity extends AppCompatActivity {
         return phone_number.matches("[0-9]{10}");
     }
 
+    private boolean isUserNameValid(String user_name){
+       return user_name.matches("[a-zA-z][a-zA-Z ]*");
+    }
 
     private void pushUserToStop(String name, String phone){
         DatabaseReference myRef = database.getReference("stops/"+ SharedPreferenceHelper.fetchStopName(this) +"/users/"+name);

@@ -33,7 +33,7 @@ public class SplasherActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance();
 
 
-        if(SharedPreferenceHelper.isStopSetupComplete(SplasherActivity.this) && SharedPreferenceHelper.isLastBoardDateValid(SplasherActivity.this)){
+        if(SharedPreferenceHelper.isStopSetupComplete(SplasherActivity.this)){
             updateStopDriverNumber();
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -44,11 +44,6 @@ public class SplasherActivity extends AppCompatActivity {
                 }
             }, 3000);
         }else{
-
-            Snackbar.make(findViewById(android.R.id.content), "Last cab boarding was more than 3 days ago!", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
-            removeUserFromStop();
-
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
