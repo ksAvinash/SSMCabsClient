@@ -48,7 +48,7 @@ public class SharedPreferenceHelper {
 
     public static String fetchUserPhoneNumber(Context context){
         SharedPreferences sharedPreferences = context.getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        return sharedPreferences.getString("phone_number", "0000011111");
+        return sharedPreferences.getString("phone_number", "");
     }
 
     public static boolean fetchPhoneNumberVisibilityStatus(Context context){

@@ -199,6 +199,7 @@ public class SetupStopActivity extends AppCompatActivity {
 
     private void subscribeToTopic(final String stop_name){
         clearPreviousTopicSubscription();
+        clearPreviousProfileDetails();
         FirebaseMessaging.getInstance().subscribeToTopic(stop_name)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -214,6 +215,14 @@ public class SetupStopActivity extends AppCompatActivity {
 
     private void clearPreviousTopicSubscription(){
         FirebaseMessaging.getInstance().unsubscribeFromTopic(SharedPreferenceHelper.fetchStopName(SetupStopActivity.this));
+    }
+
+    private void clearPreviousProfileDetails(){
+        String username = SharedPreferenceHelper.fetchUserName(SetupStopActivity.this);
+        if(!username.equals("")){
+            DatabaseReference myRef = database.getReference("stops/"+ SharedPreferenceHelper.fetchStopName(this) +"/users/"+username);
+            myRef.removeValue();
+        }
     }
 
 

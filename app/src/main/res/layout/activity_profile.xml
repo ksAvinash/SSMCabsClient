@@ -19,8 +19,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <EditText
+
+    <com.labs.ssmcabs.client.fonts.DecurionOutlineFont
+        android:layout_width="wrap_content"
         android:layout_below="@+id/rand1"
+        android:id="@+id/stop_name"
+        android:textSize="25sp"
+        android:textColor="@color/colorAccent"
+        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:layout_below="@+id/stop_name"
         android:layout_margin="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

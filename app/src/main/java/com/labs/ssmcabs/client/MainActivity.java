@@ -427,13 +427,21 @@ public class MainActivity extends AppCompatActivity
         switch (view.getId()){
             case R.id.update_profile_fb:
                     arcMenu.toggleMenu();
+                    Snackbar.make(view, "Update your stop, name and number..", Snackbar.LENGTH_SHORT).show();
+                    new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+                                startActivity(intent);
+                            }
+                        }, 1000);
                 break;
 
 
             case R.id.call_driver_fb:
                     arcMenu.toggleMenu();
                     Snackbar.make(view, "Calling driver..", Snackbar.LENGTH_SHORT).show();
-                    System.out.println(new Handler().postDelayed(new Runnable() {
+                    new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             String driver_number = SharedPreferenceHelper.fetchDriverPhoneNo(MainActivity.this);
@@ -441,7 +449,7 @@ public class MainActivity extends AppCompatActivity
                             intent.setData(Uri.parse("tel:"+driver_number));
                             startActivity(intent);
                         }
-                    }, 500));
+                    }, 500);
                 break;
 
             case R.id.user_board_logs_fb:
