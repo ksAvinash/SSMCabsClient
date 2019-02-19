@@ -34,7 +34,7 @@ dependencies {
     //Don't upgrade lottie version, the newer versions has compatibility issues
 
     implementation 'com.google.firebase:firebase-database:16.0.6'
-    implementation 'com.google.android.gms:play-services-maps:16.0.0'
+    implementation 'com.google.android.gms:play-services-maps:16.1.0'
     implementation 'com.google.firebase:firebase-messaging:17.3.4'
     implementation 'com.google.firebase:firebase-core:16.0.7'
 

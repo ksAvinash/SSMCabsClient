@@ -2,6 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_board_history"
+        android:orderInCategory="100"
+        android:title="@string/board_history"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_feedback"
         android:orderInCategory="100"
         android:title="@string/action_report"

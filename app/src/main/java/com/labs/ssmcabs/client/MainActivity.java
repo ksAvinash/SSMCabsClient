@@ -154,6 +154,10 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(MainActivity.this, FeedbackActivity.class);
             startActivity(intent);
             return true;
+        }else if(id == R.id.action_board_history){
+            Intent intent = new Intent(MainActivity.this, BoardedHistoryActivity.class);
+            startActivity(intent);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);

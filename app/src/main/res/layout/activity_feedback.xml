@@ -18,18 +18,18 @@
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-
+    
     <EditText
-        android:background="@color/greyWhite"
+        android:background="@drawable/edittext_border"
         android:inputType="textMultiLine"
         android:lines="8"
-        android:gravity="top|left"
-        android:layout_margin="12dp"
+        android:gravity="top|start"
+        android:layout_margin="16dp"
         android:layout_below="@+id/r1"
+        android:padding="12dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxLines="10"
-        android:textColor="@color/colorAccent"
         android:id="@+id/feedback_edittext"
         android:scrollbars="vertical"
         />
