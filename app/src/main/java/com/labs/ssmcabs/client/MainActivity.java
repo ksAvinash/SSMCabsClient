@@ -491,9 +491,7 @@ public class MainActivity extends AppCompatActivity
 
                 if(dataSnapshot.getValue() == null){
                     SimpleDateFormat time_formatter = new SimpleDateFormat("yyyy-MM-dd h:mm:ss a", Locale.getDefault());
-                    HashMap<String, String> map = new HashMap<>();
-                    map.put("board_time", time_formatter.format(date));
-                    userBoardLogRef.setValue(map);
+                    userBoardLogRef.setValue(time_formatter.format(date));
                     SharedPreferenceHelper.saveLastBoardTime(MainActivity.this, time_formatter.format(date));
                     Log.i("BOARD_TIME", date_formatter.format(date));
                 }else{

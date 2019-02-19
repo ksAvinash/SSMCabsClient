@@ -18,7 +18,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.labs.ssmcabs.client.helper.BoardedAdapter;
 import com.labs.ssmcabs.client.helper.SharedPreferenceHelper;
 
 import java.text.SimpleDateFormat;
@@ -72,9 +71,8 @@ public class BoardedHistoryActivity extends AppCompatActivity {
                 boarded_count.setText(dataSnapshot.getChildrenCount()+" Activites");
 
                 for(DataSnapshot child: dataSnapshot.getChildren()){
-                    BoardedAdapter boarded = child.getValue(BoardedAdapter.class);
-                    Log.v(TAG, "boarded time : "+boarded.getBoard_time());
-                    boardedAdapter.add(boarded.getBoard_time());
+                    Log.v(TAG, "boarded time : "+child.getValue());
+                    boardedAdapter.add(child.getValue()+"");
                 }
                 displayBoardedList();
             }
