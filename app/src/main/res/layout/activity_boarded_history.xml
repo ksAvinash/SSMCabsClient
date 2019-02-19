@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/greyWhite"
     tools:context=".BoardedHistoryActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -49,7 +48,7 @@
             android:id="@+id/boarded_count"
             android:layout_marginStart="12dp"
             android:textColor="@color/colorAccent"
-            android:textSize="20sp"
+            android:textSize="22sp"
             android:layout_marginTop="40dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -62,6 +61,8 @@
         android:layout_below="@+id/w2"
         android:id="@+id/boarded_list"
         android:scrollbars="none"
+        android:divider="@null"
+        android:dividerHeight="10.0sp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

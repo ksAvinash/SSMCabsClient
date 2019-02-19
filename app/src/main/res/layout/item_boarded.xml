@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    android:layout_width="match_parent"
+    android:layout_height="50sp"
+    app:cardBackgroundColor="@color/whiteColor"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.labs.ssmcabs.client.fonts.DecurionOutlineFont
+        android:layout_gravity="center"
+        android:id="@+id/item_boarded_time"
+        android:text="2019-02-19 7:16:04 AM"
+        android:textSize="18sp"
+        android:textColor="@color/secondaryText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+</android.support.v7.widget.CardView>
