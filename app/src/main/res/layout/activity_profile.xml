@@ -51,7 +51,6 @@
         android:background="@drawable/rounded_button"
         android:textColor="@color/whiteColor"
         android:text="SUBMIT"
-        android:textSize="22sp"
         android:layout_margin="30dp"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/user_number"
