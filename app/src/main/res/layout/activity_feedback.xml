@@ -35,7 +35,7 @@
         />
 
     <Button
-        android:background="@drawable/rounded_button"
+        android:background="@drawable/rounded_accent_button"
         android:textColor="@color/whiteColor"
         android:text="SUBMIT"
         android:layout_margin="30dp"
