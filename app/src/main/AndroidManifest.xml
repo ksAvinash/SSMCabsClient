@@ -63,6 +63,9 @@
         </service>
 
 
+        <service android:name=".helper.UpdateBoardedTimeService"/>
+
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="ff7eaa658cf46bb23790784d89748b4d84fe25c9" />

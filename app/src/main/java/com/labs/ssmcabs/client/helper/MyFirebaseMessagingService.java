@@ -22,6 +22,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "FB_MSG_SERVICE";
 
     private static final int NOTIFICATION_ID = 782136;
+    public static final String ACTION_BOARDED = "action_boarded";
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -71,7 +72,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         switch (status) {
             case "0":
-                notificationBuilder.addAction(R.drawable.notification_icon, "boarded cab", pendingIntent);
+                Intent boardedIntent = new Intent(this, UpdateBoardedTimeService.class)
+                        .setAction(ACTION_BOARDED);
+                PendingIntent boardedPendingIntent = PendingIntent.getService(this, 275,
+                        boardedIntent, PendingIntent.FLAG_ONE_SHOT);
+                notificationBuilder.addAction(R.drawable.notification_icon, "boarded cab", boardedPendingIntent);
                 notificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.cab_arrived));
                 break;
             case "1":
