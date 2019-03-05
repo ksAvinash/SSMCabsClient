@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
@@ -20,14 +21,14 @@ import com.labs.ssmcabs.client.SplasherActivity;
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "FB_MSG_SERVICE";
 
-    private final int NOTIFICATION_ID = 11645;
+    private static final int NOTIFICATION_ID = 782136;
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Log.i(TAG, "onMessageReceived : "+remoteMessage.getData());
 
         if (remoteMessage.getData().size() > 0) {
-            createNotificationChannel(remoteMessage.getData().get("title"), remoteMessage.getData().get("status"));
+            createNotificationChannel();
             publishNotification(remoteMessage.getData().get("driver_name"), remoteMessage.getData().get("title"), remoteMessage.getData().get("topic_name"), remoteMessage.getData().get("status"), remoteMessage.getData().get("distance"));
         }
     }
@@ -42,10 +43,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         NotificationCompat.Builder notificationBuilder = null;
 
-        if(status.equals("1"))
-            notificationBuilder = new NotificationCompat.Builder(this, "TRIP_ALERT_1");
-        else if(status.equals("2"))
-            notificationBuilder = new NotificationCompat.Builder(this, "TRIP_ALERT_2");
+        switch (status) {
+            case "0":
+                notificationBuilder = new NotificationCompat.Builder(this, "cab arrived alert");
+                break;
+            case "1":
+                notificationBuilder = new NotificationCompat.Builder(this, "1km away alert");
+                break;
+            case "2":
+                notificationBuilder = new NotificationCompat.Builder(this, "2km away alert");
+                break;
+        }
 
         notificationBuilder
                 .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE)
@@ -61,41 +69,64 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setContentInfo("Info")
                 .setContentIntent(pendingIntent);
 
-        if (status.equals("1"))
-            notificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.one_km_tone));
-        else if(status.equals("2"))
-            notificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.two_km_tone));
+        switch (status) {
+            case "0":
+                notificationBuilder.addAction(R.drawable.notification_icon, "boarded cab", pendingIntent);
+                notificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.cab_arrived));
+                break;
+            case "1":
+                notificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.one_km_tone));
+                break;
+            case "2":
+                notificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.two_km_tone));
+                break;
+        }
 
         notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
     }
 
 
 
-    private void createNotificationChannel(String title, String status){
+    private void createNotificationChannel(){
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if(status.equals("1") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
 
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             AudioAttributes attributes = new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                     .build();
-            NotificationChannel channel = new NotificationChannel("TRIP_ALERT_1",
-                    "The driver has started the trip",
+            NotificationChannel channel = new NotificationChannel("cab arrived alert",
+                    "Cab arrived!",
                     NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription(title);
+            channel.setDescription("cab arrived notification");
+            channel.setLightColor(Color.RED);
+            channel.enableLights(true);
+            channel.enableVibration(true);
+            channel.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.cab_arrived), attributes);
+            notificationManager.createNotificationChannel(channel);
+
+
+            attributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .build();
+            channel = new NotificationChannel("1km away alert",
+                    "Cab is 1km away",
+                    NotificationManager.IMPORTANCE_HIGH);
+            channel.setLightColor(Color.BLUE);
+            channel.setDescription("1km alert notification");
             channel.enableLights(true);
             channel.enableVibration(true);
             channel.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.one_km_tone), attributes);
             notificationManager.createNotificationChannel(channel);
 
-        }else if(status.equals("2") &&  Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            AudioAttributes attributes = new AudioAttributes.Builder()
+            attributes = new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                     .build();
-            NotificationChannel channel = new NotificationChannel("TRIP_ALERT_2",
-                    "The driver has started the trip",
+            channel = new NotificationChannel("2km away alert",
+                    "Cab is 2km away",
                     NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription(title);
+            channel.setDescription("2km alert notification");
             channel.enableLights(true);
+            channel.setLightColor(Color.GREEN);
             channel.enableVibration(true);
             channel.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.two_km_tone), attributes);
             notificationManager.createNotificationChannel(channel);
