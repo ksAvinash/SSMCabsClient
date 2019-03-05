@@ -34,6 +34,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -41,6 +42,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -419,13 +421,20 @@ public class MainActivity extends AppCompatActivity
         myMarker.setAnchor(0.5f, 0.5f);
         myMarker.setFlat(true);
 
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(driverLatLng)
-                .zoom(16)
-                .bearing(bearing)
-                .tilt(0)
-                .build();
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+        LatLng myLatLng = new LatLng(SharedPreferenceHelper.fetchMyStopLatitude(MainActivity.this), SharedPreferenceHelper.fetchMyStopLongitude(MainActivity.this));
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        builder.include(driverLatLng);
+        builder.include(myLatLng);
+
+        LatLngBounds bounds = builder.build();
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
+        int padding = (int) (width * 0.25); // offset from edges of the map 25% of screen
+
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+        mMap.animateCamera(cameraUpdate);
+
     }
 
     @Override
