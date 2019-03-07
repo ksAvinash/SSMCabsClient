@@ -18,10 +18,13 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.labs.ssmcabs.client.R;
 import com.labs.ssmcabs.client.SplasherActivity;
 
+import java.util.Calendar;
+import java.util.Date;
+
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "FB_MSG_SERVICE";
 
-    private static final int NOTIFICATION_ID = 782136;
+    private static final int NOTIFICATION_ID = 789232;
     public static final String ACTION_BOARDED = "action_boarded";
 
     @Override
@@ -36,6 +39,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 
     private void publishNotification(String driver_name, String title, String topic_name, String status, String distance){
+
+        Date date = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        boolean is_am = calendar.get(Calendar.AM_PM) == Calendar.AM;
+
+
         Log.i(TAG, "received notification "+status);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -46,7 +56,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         switch (status) {
             case "0":
-                notificationBuilder = new NotificationCompat.Builder(this, "cab arrived alert");
+                if(is_am)
+                    notificationBuilder = new NotificationCompat.Builder(this, "cab arrived alert");
+                else
+                    notificationBuilder = new NotificationCompat.Builder(this, "stop arrived alert");
                 break;
             case "1":
                 notificationBuilder = new NotificationCompat.Builder(this, "1km away alert");
@@ -66,7 +79,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setWhen(System.currentTimeMillis())
                 .setAutoCancel(true)
                 .setContentText(topic_name)
-                .addAction(R.drawable.notification_icon, "track cab", pendingIntent)
                 .setContentInfo("Info")
                 .setContentIntent(pendingIntent);
 
@@ -76,13 +88,23 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         .setAction(ACTION_BOARDED);
                 PendingIntent boardedPendingIntent = PendingIntent.getService(this, 275,
                         boardedIntent, PendingIntent.FLAG_ONE_SHOT);
-                notificationBuilder.addAction(R.drawable.notification_icon, "boarded cab", boardedPendingIntent);
-                notificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.cab_arrived));
+                if(is_am){
+                    notificationBuilder.addAction(R.drawable.notification_icon, "track cab", pendingIntent);
+                    notificationBuilder.addAction(R.drawable.notification_icon, "boarded", boardedPendingIntent);
+                    notificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.cab_arrived));
+                }else{
+                    notificationBuilder.setContentTitle("Cab has reached your stop");
+                    notificationBuilder.setContentIntent(boardedPendingIntent);
+                    notificationBuilder.addAction(R.drawable.notification_icon, "reached stop", boardedPendingIntent);
+                    notificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.stop_arrived));
+                }
                 break;
             case "1":
+                notificationBuilder.addAction(R.drawable.notification_icon, "track cab", pendingIntent);
                 notificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.one_km_tone));
                 break;
             case "2":
+                notificationBuilder.addAction(R.drawable.notification_icon, "track cab", pendingIntent);
                 notificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.two_km_tone));
                 break;
         }
@@ -107,6 +129,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             channel.enableLights(true);
             channel.enableVibration(true);
             channel.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.cab_arrived), attributes);
+            notificationManager.createNotificationChannel(channel);
+
+            attributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .build();
+            channel = new NotificationChannel("stop arrived alert",
+                    "Cab has reached your stop",
+                    NotificationManager.IMPORTANCE_HIGH);
+            channel.setLightColor(Color.BLUE);
+            channel.setDescription("stop arrived alert notification");
+            channel.enableLights(true);
+            channel.enableVibration(true);
+            channel.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.stop_arrived), attributes);
             notificationManager.createNotificationChannel(channel);
 
 
