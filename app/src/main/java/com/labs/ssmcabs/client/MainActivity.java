@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity
     private LatLng driverLatLng;
     private Marker myMarker;
     private String last_updated_time = "";
-    private TextView last_updated_text;
+    private TextView last_updated_text, text_duration_distance;
     private RelativeLayout last_updated_tab;
     boolean doubleBackToExitPressedOnce = false;
     FirebaseDatabase database;
@@ -162,6 +162,20 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+
+    private void displayDistanceAndDuration(DistanceAndDurationAdapter adapter){
+        text_duration_distance.setText(adapter.getDistance()+" : "+adapter.getDuration());
+        text_duration_distance.setVisibility(View.VISIBLE);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                text_duration_distance.setVisibility(View.GONE);
+                text_duration_distance.setText("");
+            }
+        }, 10000);
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -223,6 +237,8 @@ public class MainActivity extends AppCompatActivity
 
         last_updated_text = findViewById(R.id.last_updated_text);
         last_updated_text.setOnClickListener(this);
+
+        text_duration_distance = findViewById(R.id.text_duration_distance);
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapview);
         mapFragment.getMapAsync(this);
@@ -523,5 +539,6 @@ public class MainActivity extends AppCompatActivity
         currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
         DistanceAndDurationAdapter adapter = ((ArrayList<DistanceAndDurationAdapter>) values[1]).get(0);
         Log.v("MAP_API_MAIN", adapter.getDistance()+":"+adapter.getDuration());
+        displayDistanceAndDuration(adapter);
     }
 }
