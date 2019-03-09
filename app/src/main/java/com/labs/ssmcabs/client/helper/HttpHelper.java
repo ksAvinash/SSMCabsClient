@@ -72,6 +72,8 @@ public class HttpHelper {
 
     private static class ParserMapDirectionsTask extends AsyncTask<String, String, List<List<HashMap<String, String>>>> {
         List<List<HashMap<String, String>>> routes;
+        List<DistanceAndDurationAdapter> distanceAndDurationAdapter;
+
         JSONObject jObject;
         String directionMode = "driving";
         private final String TAG = "MAPS_API_PARSE";
@@ -87,10 +89,11 @@ public class HttpHelper {
         protected List<List<HashMap<String, String>>> doInBackground(String... strings) {
 
             String api_response = strings[0];
-
             try {
                 jObject = new JSONObject(api_response);
                 routes = new ArrayList<>();
+                distanceAndDurationAdapter = new ArrayList<>();
+
                 JSONArray jRoutes;
                 JSONArray jLegs;
                 JSONArray jSteps;
@@ -102,7 +105,10 @@ public class HttpHelper {
                     List path = new ArrayList<>();
                     //Traversing all legs
                     for (int j = 0; j < jLegs.length(); j++) {
-                        jSteps = ((JSONObject) jLegs.get(j)).getJSONArray("steps");
+                                JSONObject distance =  ((JSONObject) jLegs.get(j)).getJSONObject("distance");
+                                JSONObject duration =  ((JSONObject) jLegs.get(j)).getJSONObject("duration");
+                                distanceAndDurationAdapter.add(new DistanceAndDurationAdapter(distance.getString("text"), duration.getString("text")));
+                                jSteps = ((JSONObject) jLegs.get(j)).getJSONArray("steps");
 
                         // Traversing all steps
                         for (int k = 0; k < jSteps.length(); k++) {
@@ -160,13 +166,13 @@ public class HttpHelper {
                     lineOptions.width(15);
                     lineOptions.color(Color.parseColor("#FF9800"));
                 }
-                Log.d(TAG2, "onPostExecute lineoptions decoded");
+                Log.d(TAG2, "onPostExecute line options decoded");
             }
 
             // Drawing polyline in the Google Map for the i-th route
             if (lineOptions != null) {
                 //mMap.addPolyline(lineOptions);
-                taskCallback.onTaskDone(lineOptions);
+                taskCallback.onTaskDone(lineOptions, distanceAndDurationAdapter);
 
             } else {
                 Log.d(TAG2, "without Polylines drawn");

@@ -38,6 +38,8 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void initializeViews(){
         database = FirebaseDatabase.getInstance();
+        Snackbar.make(findViewById(android.R.id.content), "Click stop name to change!", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
 
         user_name = findViewById(R.id.user_name);
         user_number = findViewById(R.id.user_number);
