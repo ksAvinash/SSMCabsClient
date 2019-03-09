@@ -61,9 +61,19 @@ public class SharedPreferenceHelper {
         return sharedPreferences.getString("stop_name", "dummy_stop");
     }
 
+    public static String fetchConvertedStopName(Context context){
+        SharedPreferences sharedPreferences = context.getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
+        return convertStopName(sharedPreferences.getString("stop_name", "dummy_stop"));
+    }
+
     public static boolean isStopSetupComplete(Context context){
         SharedPreferences sharedPreferences = context.getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
         return sharedPreferences.getBoolean("is_setup_complete", false);
+    }
+
+    public static String fetchCompanyCode(Context context){
+        SharedPreferences sharedPreferences = context.getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
+        return sharedPreferences.getString("company_code", "");
     }
 
 
@@ -89,7 +99,14 @@ public class SharedPreferenceHelper {
         }
     }
 
-
+    private static String convertStopName(String stop_name){
+        String[] words = stop_name.split("_");
+        String res_name  = "";
+        for(String word : words){
+            res_name += word.substring(0, 1).toUpperCase()+word.substring(1)+" ";
+        }
+        return res_name;
+    }
 
 
 
@@ -100,7 +117,6 @@ public class SharedPreferenceHelper {
         editor.putString("last_board_time", last_board_time);
         editor.apply();
     }
-
 
 
 
@@ -121,10 +137,11 @@ public class SharedPreferenceHelper {
         editor.apply();
     }
 
-    public static void saveUserProfileDetails(Context context, String user_name, String phone_number){
+    public static void saveUserProfileDetails(Context context, String user_name, String phone_number, String company_code){
         SharedPreferences sharedPreferences = context.getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("user_name", user_name);
+        editor.putString("company_code", company_code);
         editor.putString("phone_number", phone_number);
         editor.putBoolean("is_phone_number_visible", true);
         editor.putBoolean("is_setup_complete", true);

@@ -1,32 +1,36 @@
 package com.labs.ssmcabs.client;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.labs.ssmcabs.client.helper.SharedPreferenceHelper;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class ProfileActivity extends AppCompatActivity {
 
-    EditText user_name, user_number;
+    EditText user_name, user_number, company_code;
     TextView stop_name;
     Button profile_submit_button;
     FirebaseDatabase database;
-
+    ProgressDialog progressDialog;
+    private final String TAG = "SIGN_UP";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,11 +47,15 @@ public class ProfileActivity extends AppCompatActivity {
 
         user_name = findViewById(R.id.user_name);
         user_number = findViewById(R.id.user_number);
+        company_code = findViewById(R.id.company_code);
+
         stop_name = findViewById(R.id.stop_name);
+        progressDialog = new ProgressDialog(ProfileActivity.this);
+
 
         user_name.setText(SharedPreferenceHelper.fetchUserName(ProfileActivity.this));
         user_number.setText(SharedPreferenceHelper.fetchUserPhoneNumber(ProfileActivity.this));
-        stop_name.setText(convertStopName(SharedPreferenceHelper.fetchStopName(ProfileActivity.this)));
+        stop_name.setText(SharedPreferenceHelper.fetchConvertedStopName(ProfileActivity.this));
         stop_name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -58,7 +66,6 @@ public class ProfileActivity extends AppCompatActivity {
                     public void run() {
                         Intent intent = new Intent(ProfileActivity.this, SetupStopActivity.class);
                         startActivity(intent);
-                        finish();
                     }
                 }, 200);
             }
@@ -76,26 +83,64 @@ public class ProfileActivity extends AppCompatActivity {
 
                 String name = user_name.getText().toString();
                 String phone = user_number.getText().toString();
+                String code = company_code.getText().toString();
 
                 if(name.length() <3 || name.length() > 22 || !isUserNameValid(name)){
                     profile_submit_button.setEnabled(true);
                     Snackbar.make(findViewById(android.R.id.content), "Invalid user name!", Snackbar.LENGTH_SHORT)
                             .setAction("Action", null).show();
+                }else if(!validateNumber(phone)){
+                    profile_submit_button.setEnabled(true);
+                    Snackbar.make(findViewById(android.R.id.content), "Invalid phone number!", Snackbar.LENGTH_SHORT)
+                            .setAction("Action", null).show();
+                }else if(!isCompanyCodeValid(code)){
+                    profile_submit_button.setEnabled(true);
+                    Snackbar.make(findViewById(android.R.id.content), "Please enter the 4 digit company ID", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
                 }else{
-                    if(validateNumber(phone)){
-                        pushUserToStop(name, phone);
-                        saveProfileAndJumpToMainActivity(name, phone);
-                    }else{
-                        profile_submit_button.setEnabled(true);
-                        Snackbar.make(findViewById(android.R.id.content), "Invalid phone number!", Snackbar.LENGTH_SHORT)
-                                .setAction("Action", null).show();
-                    }
-
+                    progressDialog.setMessage("Checking Company code please wait..");
+                    progressDialog.setCancelable(false);
+                    progressDialog.show();
+                    verifyCompanyCode(code, name, phone);
                 }
             }
         });
     }
 
+    private void verifyCompanyCode(final String code, final String name, final String phone){
+        final DatabaseReference companyCodeRef = database.getReference("company_codes/"+code);
+        companyCodeRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                companyCodeRef.removeEventListener(this);
+                if(progressDialog.isShowing())
+                    progressDialog.dismiss();
+                if(dataSnapshot.exists()){
+                    pushUserToStop(name, phone);
+                    saveProfileAndJumpToMainActivity(name, phone, code);
+                }else{
+                    Snackbar.make(findViewById(android.R.id.content), "Invalid company code, contact admin", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                    profile_submit_button.setEnabled(true);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                companyCodeRef.removeEventListener(this);
+                if(progressDialog.isShowing())
+                    progressDialog.dismiss();
+                profile_submit_button.setEnabled(true);
+                Snackbar.make(findViewById(android.R.id.content), "Something wrong happened, contact admin", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                Log.e(TAG, "Invalid company code entered");
+            }
+        });
+    }
+
+    private boolean isCompanyCodeValid(String code){
+        return code.matches("[0-9]{4}");
+    }
 
     private boolean validateNumber(String phone_number){
         return phone_number.matches("[0-9]{10}");
@@ -121,11 +166,11 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
 
-    private void saveProfileAndJumpToMainActivity(String name, String phone){
+    private void saveProfileAndJumpToMainActivity(String name, String phone, String code){
         Snackbar.make(findViewById(android.R.id.content), "Profile Update successful", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
 
-        SharedPreferenceHelper.saveUserProfileDetails(ProfileActivity.this, name, phone);
+        SharedPreferenceHelper.saveUserProfileDetails(ProfileActivity.this, name, phone, code);
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -136,15 +181,6 @@ public class ProfileActivity extends AppCompatActivity {
             }
         },1000);
 
-    }
-
-    private String convertStopName(String stop_name){
-        String[] words = stop_name.split("_");
-        String res_name  = "";
-        for(String word : words){
-            res_name += word.substring(0, 1).toUpperCase()+word.substring(1)+" ";
-        }
-        return res_name;
     }
 
     private void clearPreviousTopicSubscription(){

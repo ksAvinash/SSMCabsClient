@@ -516,7 +516,7 @@ public class MainActivity extends AppCompatActivity
         final SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd a", Locale.getDefault());
 
 
-        final DatabaseReference userBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchUserPhoneNumber(MainActivity.this)+"/"+
+        final DatabaseReference userBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchCompanyCode(MainActivity.this)+"/"+SharedPreferenceHelper.fetchUserPhoneNumber(MainActivity.this)+"/"+
                 month_formatter.format(date)+"/"+date_formatter.format(date)+"/");
         userBoardLogRef.addValueEventListener(new ValueEventListener() {
             @Override

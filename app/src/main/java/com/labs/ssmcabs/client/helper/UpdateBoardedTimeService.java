@@ -32,7 +32,7 @@ public class UpdateBoardedTimeService extends IntentService {
         final SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd a", Locale.getDefault());
 
 
-        final DatabaseReference userBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchUserPhoneNumber(UpdateBoardedTimeService.this)+"/"+
+        final DatabaseReference userBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchCompanyCode(UpdateBoardedTimeService.this)+"/"+SharedPreferenceHelper.fetchUserPhoneNumber(UpdateBoardedTimeService.this)+"/"+
                 month_formatter.format(date)+"/"+date_formatter.format(date)+"/");
         userBoardLogRef.addValueEventListener(new ValueEventListener() {
             @Override
