@@ -16,6 +16,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.RelativeSizeSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -164,8 +167,19 @@ public class MainActivity extends AppCompatActivity
 
 
     private void displayDistanceAndDuration(DistanceAndDurationAdapter adapter){
-        text_duration_distance.setText(adapter.getDistance()+" : "+adapter.getDuration());
+        String distance = adapter.getDistance();
+        String duration = adapter.getDuration();
+        String[] time = adapter.getDuration().split(" ");
+
+        SpannableString spannableString =  new SpannableString(distance+" : "+duration);
+        spannableString.setSpan(new RelativeSizeSpan(1.15f), 0, distance.split(" ")[0].length(),  Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannableString.setSpan(new RelativeSizeSpan(1.15f), distance.length()+3, distance.length()+3+time[0].length(),  Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        if(time.length == 4)
+            spannableString.setSpan(new RelativeSizeSpan(1.15f), distance.length()+3+time[0].length()+1+time[1].length()+1, distance.length()+3+time[0].length()+1+time[1].length()+1+time[2].length(),  Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        text_duration_distance.setText(spannableString);
         text_duration_distance.setVisibility(View.VISIBLE);
+
 
         new Handler().postDelayed(new Runnable() {
             @Override

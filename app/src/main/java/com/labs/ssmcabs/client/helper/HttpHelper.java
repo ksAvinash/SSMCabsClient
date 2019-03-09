@@ -65,6 +65,8 @@ public class HttpHelper {
         @Override
         protected void onPostExecute(String str) {
             super.onPostExecute(str);
+            if(str == null)
+                return;
             ParserMapDirectionsTask parserMapDirectionsTask = new ParserMapDirectionsTask(mContext);
             parserMapDirectionsTask.execute(str);
         }
@@ -140,6 +142,9 @@ public class HttpHelper {
         @Override
         protected void onPostExecute(List<List<HashMap<String, String>>> result) {
             super.onPostExecute(result);
+
+            if(result == null)
+                return;
 
             ArrayList<LatLng> points;
             PolylineOptions lineOptions = null;
