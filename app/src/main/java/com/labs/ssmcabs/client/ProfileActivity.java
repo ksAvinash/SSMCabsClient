@@ -48,14 +48,14 @@ public class ProfileActivity extends AppCompatActivity {
         user_name = findViewById(R.id.user_name);
         user_number = findViewById(R.id.user_number);
         company_code = findViewById(R.id.company_code);
-
         stop_name = findViewById(R.id.stop_name);
         progressDialog = new ProgressDialog(ProfileActivity.this);
-
 
         user_name.setText(SharedPreferenceHelper.fetchUserName(ProfileActivity.this));
         user_number.setText(SharedPreferenceHelper.fetchUserPhoneNumber(ProfileActivity.this));
         stop_name.setText(SharedPreferenceHelper.fetchConvertedStopName(ProfileActivity.this));
+        company_code.setText(SharedPreferenceHelper.fetchCompanyCode(ProfileActivity.this));
+
         stop_name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

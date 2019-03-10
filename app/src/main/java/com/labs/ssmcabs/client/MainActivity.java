@@ -33,6 +33,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity
     ArcMenu arcMenu;
     private Polyline currentPolyline;
     boolean isPathSet = false;
+    InterstitialAd mInterstitialAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +92,7 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_main);
         initializeViews();
-
+        loadNewAd();
     }
 
     private void setUpPathToMyStop(LatLng updated_location){
@@ -495,6 +498,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.user_board_logs_fb:
                     arcMenu.toggleMenu();
                     updateBoardedTime();
+                    showAd();
                 break;
 
             case R.id.last_updated_tab:
@@ -507,6 +511,21 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+
+    private void loadNewAd(){
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
+        mInterstitialAd.loadAd(new AdRequest.Builder().build());
+    }
+
+    private void showAd(){
+        if (mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+            loadNewAd();
+        } else {
+            Log.w("FB_ADS", "The interstitial wasn't loaded yet.");
+        }
+    }
 
     private void updateBoardedTime(){
         Snackbar.make(findViewById(android.R.id.content), "Your cab board time has been recorded for the trip!", Snackbar.LENGTH_LONG)
@@ -539,10 +558,6 @@ public class MainActivity extends AppCompatActivity
                 userBoardLogRef.removeEventListener(this);
             }
         });
-
-
-
-
     }
 
     @Override
