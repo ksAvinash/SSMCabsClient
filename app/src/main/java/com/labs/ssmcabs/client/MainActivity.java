@@ -460,7 +460,7 @@ public class MainActivity extends AppCompatActivity
         LatLngBounds bounds = builder.build();
         int width = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels;
-        int padding = (int) (width * 0.2); // offset from edges of the map 20% of screen
+        int padding = (int) (width * 0.25); // offset from edges of the map 25% of screen
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
         mMap.animateCamera(cameraUpdate);
