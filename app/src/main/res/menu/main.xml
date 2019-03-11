@@ -12,4 +12,12 @@
         android:orderInCategory="100"
         android:title="@string/action_report"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_developer_page"
+        android:orderInCategory="100"
+        android:title="Developer Page"
+        app:showAsAction="never" />
+
+
 </menu>

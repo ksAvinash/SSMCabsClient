@@ -44,6 +44,13 @@
             android:launchMode="singleInstance"
             android:theme="@style/AppTheme.NoActionBar" />
 
+
+        <activity
+            android:screenOrientation="portrait"
+            android:name=".DeveloperActivity"
+            android:launchMode="singleInstance"
+            android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:screenOrientation="portrait"
             android:name=".MainActivity"
