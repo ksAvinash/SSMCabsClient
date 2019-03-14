@@ -55,7 +55,7 @@ public class BoardedHistoryActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance();
         curr_month = new Date();
         SimpleDateFormat month_formatter = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
-        boardRef = database.getReference("user_board_logs/"+ SharedPreferenceHelper.fetchCompanyCode(BoardedHistoryActivity.this)+"/"+SharedPreferenceHelper.fetchUserPhoneNumber(BoardedHistoryActivity.this)
+        boardRef = database.getReference("user_board_logs/"+ SharedPreferenceHelper.fetchCompanyCode(BoardedHistoryActivity.this)+"/user_logs/"+SharedPreferenceHelper.fetchUserPhoneNumber(BoardedHistoryActivity.this)
                     +"/"+month_formatter.format(curr_month));
     }
 

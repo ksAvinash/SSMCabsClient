@@ -18,14 +18,25 @@
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-    
+
+    <TextView
+        android:layout_below="@+id/r1"
+        android:id="@+id/feedback_desc"
+        android:layout_marginLeft="18dp"
+        android:layout_marginRight="18dp"
+        android:textColor="@color/secondaryText"
+        android:text="@string/feedback_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+
     <EditText
         android:background="@drawable/edittext_border"
         android:inputType="textMultiLine"
         android:lines="8"
         android:gravity="top|start"
         android:layout_margin="16dp"
-        android:layout_below="@+id/r1"
+        android:layout_below="@+id/feedback_desc"
         android:padding="12dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

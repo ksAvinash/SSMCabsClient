@@ -8,4 +8,5 @@
     <string name="action_report">Issues and Feedback</string>
     <string name="board_history">Board History</string>
     <string name="maps_v2_api_key">AIzaSyBD2iC-g6uE7oTo7br8gcAQiuVHmA-8ub4</string>
+    <string name="feedback_description">Talk us about any issues or feature improvements you wish to have in this app.</string>
 </resources>

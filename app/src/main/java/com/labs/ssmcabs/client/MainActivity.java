@@ -536,8 +536,10 @@ public class MainActivity extends AppCompatActivity
         final SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd a", Locale.getDefault());
 
 
-        final DatabaseReference userBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchCompanyCode(MainActivity.this)+"/"+SharedPreferenceHelper.fetchUserPhoneNumber(MainActivity.this)+"/"+
+        final DatabaseReference userBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchCompanyCode(MainActivity.this)+"/user_logs/"+SharedPreferenceHelper.fetchUserPhoneNumber(MainActivity.this)+"/"+
                 month_formatter.format(date)+"/"+date_formatter.format(date)+"/");
+        final DatabaseReference monthBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchCompanyCode(MainActivity.this)+"/month_logs/"+month_formatter.format(date)+"/"+date_formatter.format(date)+"/"
+                +SharedPreferenceHelper.fetchUserPhoneNumber(MainActivity.this));
         userBoardLogRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -546,6 +548,7 @@ public class MainActivity extends AppCompatActivity
                 if(dataSnapshot.getValue() == null){
                     SimpleDateFormat time_formatter = new SimpleDateFormat("yyyy-MM-dd h:mm:ss a", Locale.getDefault());
                     userBoardLogRef.setValue(time_formatter.format(date));
+                    monthBoardLogRef.setValue(time_formatter.format(date));
                     SharedPreferenceHelper.saveLastBoardTime(MainActivity.this, time_formatter.format(date));
                     Log.i("BOARD_TIME", date_formatter.format(date));
                 }else{

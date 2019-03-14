@@ -23,6 +23,10 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.labs.ssmcabs.client.helper.SharedPreferenceHelper;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class ProfileActivity extends AppCompatActivity {
 
     EditText user_name, user_number, company_code;
@@ -169,8 +173,11 @@ public class ProfileActivity extends AppCompatActivity {
     private void saveProfileAndJumpToMainActivity(String name, String phone, String code){
         Snackbar.make(findViewById(android.R.id.content), "Profile Update successful", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
-
+        Date date = new Date();
         SharedPreferenceHelper.saveUserProfileDetails(ProfileActivity.this, name, phone, code);
+        DatabaseReference signupRef = database.getReference("user_signup/"+ code+"/"+phone);
+        SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        signupRef.setValue(date_formatter.format(date));
 
         new Handler().postDelayed(new Runnable() {
             @Override

@@ -63,7 +63,7 @@ public class FeedbackActivity extends AppCompatActivity {
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference reference = database.getReference("feedback/"+
+        DatabaseReference reference = database.getReference("feedback/"+SharedPreferenceHelper.fetchCompanyCode(FeedbackActivity.this)+"/"+
                 SharedPreferenceHelper.fetchUserPhoneNumber(FeedbackActivity.this)+"/"+formatter.format(date));
         reference.setValue(feedback);
     }

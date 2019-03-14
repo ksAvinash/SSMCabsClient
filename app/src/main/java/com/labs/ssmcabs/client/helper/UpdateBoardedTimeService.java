@@ -32,8 +32,10 @@ public class UpdateBoardedTimeService extends IntentService {
         final SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd a", Locale.getDefault());
 
 
-        final DatabaseReference userBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchCompanyCode(UpdateBoardedTimeService.this)+"/"+SharedPreferenceHelper.fetchUserPhoneNumber(UpdateBoardedTimeService.this)+"/"+
+        final DatabaseReference userBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchCompanyCode(UpdateBoardedTimeService.this)+"/user_logs/"+SharedPreferenceHelper.fetchUserPhoneNumber(UpdateBoardedTimeService.this)+"/"+
                 month_formatter.format(date)+"/"+date_formatter.format(date)+"/");
+        final DatabaseReference monthBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchCompanyCode(UpdateBoardedTimeService.this)+"/month_logs/"+month_formatter.format(date)+"/"+date_formatter.format(date)+"/"
+                +SharedPreferenceHelper.fetchUserPhoneNumber(UpdateBoardedTimeService.this));
         userBoardLogRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -42,6 +44,7 @@ public class UpdateBoardedTimeService extends IntentService {
                 if(dataSnapshot.getValue() == null){
                     SimpleDateFormat time_formatter = new SimpleDateFormat("yyyy-MM-dd h:mm:ss a", Locale.getDefault());
                     userBoardLogRef.setValue(time_formatter.format(date));
+                    monthBoardLogRef.setValue(time_formatter.format(date));
                     SharedPreferenceHelper.saveLastBoardTime(UpdateBoardedTimeService.this, time_formatter.format(date));
                     Log.i("BOARD_TIME", date_formatter.format(date));
                 }else{
