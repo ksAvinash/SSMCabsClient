@@ -167,4 +167,14 @@ public class SharedPreferenceHelper {
         editor.apply();
     }
 
+    public static void saveBoardingConfiguration(Context context, BoardingConfigurationAdapter adapter){
+        SharedPreferences sharedPreferences = context.getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("dynamic_qr_code", adapter.isDynamic_qr_code());
+        editor.putBoolean("location_trace", adapter.isLocation_trace());
+        editor.putBoolean("otp_to_client", adapter.isOtp_to_client());
+        editor.putBoolean("otp_to_driver", adapter.isOtp_to_driver());
+        editor.apply();
+    }
+
 }

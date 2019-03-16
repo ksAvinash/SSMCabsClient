@@ -17,15 +17,21 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.labs.ssmcabs.client.helper.BoardingConfigurationAdapter;
 import com.labs.ssmcabs.client.helper.CoordinateAdapter;
 import com.labs.ssmcabs.client.helper.SharedPreferenceHelper;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
 import io.fabric.sdk.android.Fabric;
 
 public class SplasherActivity extends AppCompatActivity {
 
     FirebaseDatabase database;
     private final String TAG = "SPLASHER_CLIENT";
-
+    BoardingConfigurationAdapter boardingConfigurationAdapter;
+    Timer timer_15;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,17 +43,24 @@ public class SplasherActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
 
-
         if(SharedPreferenceHelper.isStopSetupComplete(SplasherActivity.this)){
             updateStopDriverNumber();
-            new Handler().postDelayed(new Runnable() {
+
+            timer_15 = new Timer();
+            TimerTask timerTask = new TimerTask() {
                 @Override
                 public void run() {
-                    Intent intent = new Intent(SplasherActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+                    timer_15.cancel();
+                    if (boardingConfigurationAdapter == null) {
+                        SplasherActivity.this.runOnUiThread(new Runnable() {
+                            public void run() {
+                                killActivity("No response from server, please try later");
+                            }
+                        });
+                    }
                 }
-            }, 3000);
+            };
+            timer_15.schedule(timerTask, 15000L);
         }else{
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -61,13 +74,6 @@ public class SplasherActivity extends AppCompatActivity {
     }
 
 
-    private void removeUserFromStop(){
-        DatabaseReference myRef = database.getReference("stops/"+ SharedPreferenceHelper.fetchStopName(SplasherActivity.this)
-                +"/users/"+SharedPreferenceHelper.fetchUserName(SplasherActivity.this));
-        myRef.removeValue();
-    }
-
-
     private void updateStopDriverNumber(){
         final String stop_name = SharedPreferenceHelper.fetchStopName(this);
 
@@ -76,7 +82,6 @@ public class SplasherActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 myStopRef.removeEventListener(this);
-
                 Log.v(TAG, "MY_STOP : "+dataSnapshot.getValue());
 
                 String driver_number = (String) dataSnapshot.getValue();
@@ -98,19 +103,76 @@ public class SplasherActivity extends AppCompatActivity {
         driverDetailsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.v(TAG, "MY_STOP : "+dataSnapshot.getValue());
+                Log.v(TAG, "STOP_DRIVER : "+dataSnapshot.getValue());
                 driverDetailsRef.removeEventListener(this);
                 CoordinateAdapter adapter = dataSnapshot.getValue(CoordinateAdapter.class);
                 if(adapter != null) {
                     SharedPreferenceHelper.saveDriverDetails(SplasherActivity.this, adapter.getDriver_name(),
                             adapter.getVehicle_number(), adapter.getVehicle_type());
+                    fetchBoardingConfiguration();
+                }else{
+                    Log.e(TAG, "STOP_DRIVER : null value");
+                    killActivity("Error fetching driver details, contact Admin!");
                 }
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 driverDetailsRef.removeEventListener(this);
-                Log.w(TAG, "MY_STOP : Error fetching stop details");
+                Log.w(TAG, "STOP_DRIVER : Error fetching stop driver details");
+                killActivity("Error fetching driver details, contact Admin!");
             }
         });
+    }
+
+    private void fetchBoardingConfiguration(){
+        final DatabaseReference boardingConfigRef = database.getReference("boarding_configuration");
+        boardingConfigRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                boardingConfigRef.removeEventListener(this);
+                Log.v(TAG, "BOARDING_CONFIG : "+dataSnapshot.getValue());
+                boardingConfigurationAdapter = dataSnapshot.getValue(BoardingConfigurationAdapter.class);
+                if(boardingConfigurationAdapter != null){
+                    SharedPreferenceHelper.saveBoardingConfiguration(SplasherActivity.this, boardingConfigurationAdapter);
+                    jumpToMainActivity();
+                }else {
+                    Log.w(TAG, "BOARDING_CONFIG : null value");
+                    killActivity("Error fetching configuration, contact Admin!");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                boardingConfigRef.removeEventListener(this);
+                Log.e(TAG, "BOARDING_CONFIG : error fetching boarding configuration");
+                killActivity("Error fetching configuration, contact Admin!");
+            }
+        });
+    }
+
+
+
+    private void jumpToMainActivity(){
+        timer_15.cancel();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(SplasherActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        }, 1000);
+    }
+
+
+
+    private void killActivity(String message){
+        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG).show();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                finish();
+            }
+        }, 2500);
     }
 }

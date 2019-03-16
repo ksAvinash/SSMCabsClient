@@ -554,15 +554,16 @@ public class MainActivity extends AppCompatActivity
                 }else{
                     Log.i("BOARD_TIME", "Cab already boarded today");
                 }
-
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 userBoardLogRef.removeEventListener(this);
             }
         });
     }
+
+
+
 
     @Override
     public void onTaskDone(Object... values) {
