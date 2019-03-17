@@ -9,9 +9,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -218,5 +220,62 @@ public class HttpHelper {
             return poly;
         }
 
+    }
+
+    public static class VerifyQRCodeTask extends AsyncTask<Object, String, String>{
+        private final String TAG = "QR_VALIDATE";
+        BackendResponseCallback taskCallback;
+
+        public VerifyQRCodeTask(Context mContext) {
+            this.taskCallback = (BackendResponseCallback) mContext;
+        }
+
+        @Override
+        protected String doInBackground(Object... objects) {
+            String qr_message = (String) objects[0];
+            try{
+                URL url = new URL("https://us-central1-ssmcabsmaster.cloudfunctions.net/validate_qr");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setRequestProperty("Accept", "application/json");
+                conn.setDoOutput(true);
+                conn.setDoInput(true);
+
+                JSONObject jsonParam = new JSONObject();
+                jsonParam.put("qr_message", qr_message);
+
+                DataOutputStream os = new DataOutputStream(conn.getOutputStream());
+                os.writeBytes(jsonParam.toString());
+                os.flush();
+                BufferedReader serverAnswer = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+                String response = serverAnswer.readLine();
+                os.close();
+                conn.disconnect();
+                return response;
+            }catch (Exception e){
+                Log.d(TAG, e.toString());
+            }
+            return "";
+        }
+
+
+        @Override
+        protected void onPostExecute(String str) {
+            super.onPostExecute(str);
+            try {
+                JSONObject response = new JSONObject(str);
+                boolean validate_qr = response.getBoolean("validate_qr");
+                if(validate_qr){
+                    taskCallback.onTaskDone(true);
+                }else{
+                    taskCallback.onTaskDone(false, response.getString("reason"));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                taskCallback.onTaskDone(false, "INVALID RESPONSE");
+            }
+        }
     }
 }

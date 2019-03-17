@@ -15,6 +15,7 @@ import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.labs.ssmcabs.client.QRCodeScannerActivity;
 import com.labs.ssmcabs.client.R;
 import com.labs.ssmcabs.client.SplasherActivity;
 
@@ -84,18 +85,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         switch (status) {
             case "0":
-                Intent boardedIntent = new Intent(this, UpdateBoardedTimeService.class)
-                        .setAction(ACTION_BOARDED);
-                PendingIntent boardedPendingIntent = PendingIntent.getService(this, 275,
-                        boardedIntent, PendingIntent.FLAG_ONE_SHOT);
+                Intent boardedIntent = new Intent(this, QRCodeScannerActivity.class);
+                PendingIntent boardedPendingIntent = PendingIntent.getActivity(this, 651, boardedIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 if(is_am){
                     notificationBuilder.addAction(R.drawable.notification_icon, "track cab", pendingIntent);
                     notificationBuilder.addAction(R.drawable.notification_icon, "boarded", boardedPendingIntent);
                     notificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.cab_arrived));
                 }else{
                     notificationBuilder.setContentTitle("Cab has reached your stop");
-                    notificationBuilder.setContentIntent(boardedPendingIntent);
-                    notificationBuilder.addAction(R.drawable.notification_icon, "reached stop", boardedPendingIntent);
+                    notificationBuilder.addAction(R.drawable.notification_icon, "track cab", pendingIntent);
                     notificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.stop_arrived));
                 }
                 break;

@@ -58,10 +58,6 @@ public class UpdateBoardedTimeService extends IntentService {
                 userBoardLogRef.removeEventListener(this);
             }
         });
-
-
-
-
     }
 
     @Override

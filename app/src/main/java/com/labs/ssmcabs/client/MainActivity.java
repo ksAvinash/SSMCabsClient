@@ -1,6 +1,9 @@
 package com.labs.ssmcabs.client;
 
+import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,10 +12,13 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -82,7 +88,8 @@ public class MainActivity extends AppCompatActivity
     private Polyline currentPolyline;
     boolean isPathSet = false;
     InterstitialAd mInterstitialAd;
-
+    private final int REQUEST_CODE_CAMERA_PERMISSIONS = 7328;
+    ProgressDialog progressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,6 +100,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         initializeViews();
         loadNewAd();
+        requestPermissions();
     }
 
     private void setUpPathToMyStop(LatLng updated_location){
@@ -100,6 +108,27 @@ public class MainActivity extends AppCompatActivity
             new HttpHelper.FetchMapDirectionsTask(MainActivity.this).execute(new LatLng(SharedPreferenceHelper.fetchMyStopLatitude(MainActivity.this),
                     SharedPreferenceHelper.fetchMyStopLongitude(MainActivity.this)), updated_location);
             isPathSet = true;
+        }
+    }
+
+    private void requestPermissions(){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ) {
+            ActivityCompat
+                    .requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_CODE_CAMERA_PERMISSIONS);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_CAMERA_PERMISSIONS:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    Toast.makeText(MainActivity.this, "Camera permission Granted!", Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(MainActivity.this, "Camera permission Denied..", Toast.LENGTH_SHORT).show();
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 
@@ -240,6 +269,7 @@ public class MainActivity extends AppCompatActivity
         phoneVisibilitySwitch = findViewById(R.id.phoneVisibilitySwitch);
         database = FirebaseDatabase.getInstance();
         arcMenu = findViewById(R.id.arcMenu);
+        progressDialog = new ProgressDialog(MainActivity.this);
 
         FloatingActionButton call_driver_fb = findViewById(R.id.call_driver_fb);
         call_driver_fb.setOnClickListener(this);
@@ -498,8 +528,16 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.user_board_logs_fb:
                     arcMenu.toggleMenu();
-                    updateBoardedTime();
-                    showAd();
+                    if(isCameraPermissionGranted())
+                        checkCabBoarded();
+                    else{
+                        Toast.makeText(MainActivity.this, "Enable camera permissions to scan QR code", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent();
+                        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        Uri uri = Uri.fromParts("package", getPackageName(), null);
+                        intent.setData(uri);
+                        startActivity(intent);
+                    }
                 break;
 
             case R.id.last_updated_tab:
@@ -528,31 +566,36 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void updateBoardedTime(){
-        Snackbar.make(findViewById(android.R.id.content), "Your cab board time has been recorded for the trip!", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show();
+    private void startProgressDialog(String message){
+        progressDialog.setMessage(message);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+    }
+
+    private void stopProgressDialog(){
+        if(progressDialog.isShowing())
+            progressDialog.dismiss();
+    }
+
+    private void checkCabBoarded(){
+        startProgressDialog("Checking your cab boarded records..");
         final Date date = new Date();
         final SimpleDateFormat month_formatter = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
         final SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd a", Locale.getDefault());
-
-
         final DatabaseReference userBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchCompanyCode(MainActivity.this)+"/user_logs/"+SharedPreferenceHelper.fetchUserPhoneNumber(MainActivity.this)+"/"+
                 month_formatter.format(date)+"/"+date_formatter.format(date)+"/");
-        final DatabaseReference monthBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchCompanyCode(MainActivity.this)+"/month_logs/"+month_formatter.format(date)+"/"+date_formatter.format(date)+"/"
-                +SharedPreferenceHelper.fetchUserPhoneNumber(MainActivity.this));
         userBoardLogRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 userBoardLogRef.removeEventListener(this);
+                stopProgressDialog();
 
                 if(dataSnapshot.getValue() == null){
-                    SimpleDateFormat time_formatter = new SimpleDateFormat("yyyy-MM-dd h:mm:ss a", Locale.getDefault());
-                    userBoardLogRef.setValue(time_formatter.format(date));
-                    monthBoardLogRef.setValue(time_formatter.format(date));
-                    SharedPreferenceHelper.saveLastBoardTime(MainActivity.this, time_formatter.format(date));
-                    Log.i("BOARD_TIME", date_formatter.format(date));
+                    Intent intent = new Intent(MainActivity.this, QRCodeScannerActivity.class);
+                    startActivity(intent);
                 }else{
-                    Log.i("BOARD_TIME", "Cab already boarded today");
+                    Snackbar.make(findViewById(android.R.id.content), "Your activity has already recorded for the trip!", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
                 }
             }
             @Override
@@ -574,5 +617,10 @@ public class MainActivity extends AppCompatActivity
         DistanceAndDurationAdapter adapter = ((ArrayList<DistanceAndDurationAdapter>) values[1]).get(0);
         Log.v("MAP_API_MAIN", adapter.getDistance()+":"+adapter.getDuration());
         displayDistanceAndDuration(adapter);
+    }
+
+
+    private boolean isCameraPermissionGranted(){
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
     }
 }
