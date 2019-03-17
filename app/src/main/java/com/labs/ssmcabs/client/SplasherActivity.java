@@ -3,6 +3,7 @@ package com.labs.ssmcabs.client;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -168,7 +169,7 @@ public class SplasherActivity extends AppCompatActivity {
 
     private void killActivity(String message){
         Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG).show();
-        new Handler().postDelayed(new Runnable() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 finish();

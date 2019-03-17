@@ -21,11 +21,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.labs.ssmcabs.client.helper.ProfileAdapter;
 import com.labs.ssmcabs.client.helper.SharedPreferenceHelper;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -173,11 +170,10 @@ public class ProfileActivity extends AppCompatActivity {
     private void saveProfileAndJumpToMainActivity(String name, String phone, String code){
         Snackbar.make(findViewById(android.R.id.content), "Profile Update successful", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
-        Date date = new Date();
-        SharedPreferenceHelper.saveUserProfileDetails(ProfileActivity.this, name, phone, code);
+        ProfileAdapter profileAdapter = new ProfileAdapter(name, phone, SharedPreferenceHelper.fetchStopName(ProfileActivity.this), code);
+        SharedPreferenceHelper.saveUserProfileDetails(ProfileActivity.this, profileAdapter);
         DatabaseReference signupRef = database.getReference("user_signup/"+ code+"/"+phone);
-        SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        signupRef.setValue(date_formatter.format(date));
+        signupRef.setValue(profileAdapter);
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -195,5 +191,12 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
 
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        user_name.setText(SharedPreferenceHelper.fetchUserName(ProfileActivity.this));
+        user_number.setText(SharedPreferenceHelper.fetchUserPhoneNumber(ProfileActivity.this));
+        stop_name.setText(SharedPreferenceHelper.fetchConvertedStopName(ProfileActivity.this));
+        company_code.setText(SharedPreferenceHelper.fetchCompanyCode(ProfileActivity.this));
+    }
 }

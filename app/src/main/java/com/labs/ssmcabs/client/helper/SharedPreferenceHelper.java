@@ -137,12 +137,13 @@ public class SharedPreferenceHelper {
         editor.apply();
     }
 
-    public static void saveUserProfileDetails(Context context, String user_name, String phone_number, String company_code){
+    public static void saveUserProfileDetails(Context context, ProfileAdapter adapter){
         SharedPreferences sharedPreferences = context.getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("user_name", user_name);
-        editor.putString("company_code", company_code);
-        editor.putString("phone_number", phone_number);
+        editor.putString("user_name", adapter.getUser_name());
+        editor.putString("company_code", adapter.getCompany_code());
+        editor.putString("phone_number", adapter.getPhoneno());
+        editor.putString("stop_name", adapter.getStop_name());
         editor.putBoolean("is_phone_number_visible", true);
         editor.putBoolean("is_setup_complete", true);
         editor.apply();
