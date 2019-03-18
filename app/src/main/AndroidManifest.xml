@@ -81,6 +81,7 @@
             </intent-filter>
         </service>
         <service android:name=".helper.UpdateBoardedTimeService" />
+        <service android:name=".helper.BoardingAuditService"/>
 
         <meta-data
             android:name="io.fabric.ApiKey"

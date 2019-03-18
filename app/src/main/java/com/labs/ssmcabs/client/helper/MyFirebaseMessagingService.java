@@ -22,11 +22,14 @@ import com.labs.ssmcabs.client.SplasherActivity;
 import java.util.Calendar;
 import java.util.Date;
 
+import static com.labs.ssmcabs.client.helper.UpdateBoardedTimeService.ACTION_BOARDED;
+
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "FB_MSG_SERVICE";
 
-    private static final int NOTIFICATION_ID = 789232;
-    public static final String ACTION_BOARDED = "action_boarded";
+    private static final int NOTIFICATION_ID = 789532;
+    public static final String ACTION_BOARDING = "Yes";
+    public static final String ACTION_NOT_BOARDING = "No";
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -34,12 +37,38 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         if (remoteMessage.getData().size() > 0) {
             createNotificationChannel();
-            publishNotification(remoteMessage.getData().get("driver_name"), remoteMessage.getData().get("title"), remoteMessage.getData().get("topic_name"), remoteMessage.getData().get("status"), remoteMessage.getData().get("distance"));
+            if(remoteMessage.getData().get("status") != null)
+                publichCabNotification(remoteMessage.getData().get("driver_name"), remoteMessage.getData().get("title"), remoteMessage.getData().get("topic_name"), remoteMessage.getData().get("status"), remoteMessage.getData().get("distance"));
+            else
+                publishAskBoardingNotification(remoteMessage.getData().get("title"));
         }
     }
 
+    private void publishAskBoardingNotification(String title){
+        Intent boardingIntent = new Intent(this, BoardingAuditService.class)
+                .setAction(ACTION_BOARDED);
+        PendingIntent boardingPendingIntent = PendingIntent.getService(this, 345,
+                boardingIntent, PendingIntent.FLAG_ONE_SHOT);
 
-    private void publishNotification(String driver_name, String title, String topic_name, String status, String distance){
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "boarding today");
+        notificationBuilder
+                .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE)
+                .setWhen(System.currentTimeMillis())
+                .setSmallIcon(R.drawable.notification_icon)
+                .setPriority(Notification.PRIORITY_MAX)
+                .setContentTitle(title)
+                .setContentText("all_users")
+                .setWhen(System.currentTimeMillis())
+                .setAutoCancel(true)
+                .setContentInfo("Info");
+        notificationBuilder.addAction(R.drawable.notification_icon, ACTION_BOARDING, boardingPendingIntent);
+        notificationBuilder.addAction(R.drawable.notification_icon, ACTION_NOT_BOARDING, boardingPendingIntent);
+        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
+    }
+
+
+    private void publichCabNotification(String driver_name, String title, String topic_name, String status, String distance){
 
         Date date = new Date();
         Calendar calendar = Calendar.getInstance();
@@ -167,6 +196,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             channel.setLightColor(Color.GREEN);
             channel.enableVibration(true);
             channel.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.two_km_tone), attributes);
+            notificationManager.createNotificationChannel(channel);
+
+            channel = new NotificationChannel("boarding today",
+                    "boarding cab today",
+                    NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription("user boarding the cab today");
+            channel.enableLights(true);
+            channel.setLightColor(Color.WHITE);
+            channel.enableVibration(true);
             notificationManager.createNotificationChannel(channel);
         }
     }

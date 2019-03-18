@@ -66,7 +66,7 @@ public class SharedPreferenceHelper {
         return convertStopName(sharedPreferences.getString("stop_name", "dummy_stop"));
     }
 
-    public static boolean isStopSetupComplete(Context context){
+    public static boolean isUserSetupComplete(Context context){
         SharedPreferences sharedPreferences = context.getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
         return sharedPreferences.getBoolean("is_setup_complete", false);
     }

@@ -23,7 +23,7 @@ public class UpdateBoardedTimeService extends IntentService {
         super(UpdateBoardedTimeService.class.getSimpleName());
     }
     public static final String ACTION_BOARDED = "action_boarded";
-    private static final int NOTIFICATION_ID = 789232;
+    private static final int NOTIFICATION_ID = 789532;
 
     private void updateBoardedTime(){
         FirebaseDatabase database = FirebaseDatabase.getInstance();
