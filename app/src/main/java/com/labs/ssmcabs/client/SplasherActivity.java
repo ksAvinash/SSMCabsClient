@@ -18,6 +18,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.labs.ssmcabs.client.helper.BoardingConfigurationAdapter;
 import com.labs.ssmcabs.client.helper.CoordinateAdapter;
 import com.labs.ssmcabs.client.helper.SharedPreferenceHelper;
@@ -43,6 +44,7 @@ public class SplasherActivity extends AppCompatActivity {
         MobileAds.initialize(this, "ca-app-pub-9681985190789334~7745401881");
 
         database = FirebaseDatabase.getInstance();
+        FirebaseMessaging.getInstance().subscribeToTopic("all_users");
 
         if(SharedPreferenceHelper.isStopSetupComplete(SplasherActivity.this)){
             updateStopDriverNumber();

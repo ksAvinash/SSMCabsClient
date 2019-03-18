@@ -200,16 +200,7 @@ public class SetupStopActivity extends AppCompatActivity {
     private void subscribeToTopic(final String stop_name){
         clearPreviousTopicSubscription();
         clearPreviousProfileDetails();
-        FirebaseMessaging.getInstance().subscribeToTopic(stop_name)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (!task.isSuccessful())
-                            Log.e(TAG, "error subscribing to topic : "+stop_name);
-                        else
-                            Log.i(TAG, "subscribed to topic : "+stop_name);
-                    }
-                });
+        FirebaseMessaging.getInstance().subscribeToTopic(stop_name);
     }
 
 

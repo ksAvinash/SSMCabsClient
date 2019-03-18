@@ -117,7 +117,6 @@ public class ProfileActivity extends AppCompatActivity {
                 if(progressDialog.isShowing())
                     progressDialog.dismiss();
                 if(dataSnapshot.exists()){
-                    pushUserToStop(name, phone);
                     saveProfileAndJumpToMainActivity(name, phone, code);
                 }else{
                     Snackbar.make(findViewById(android.R.id.content), "Invalid company code, contact admin", Snackbar.LENGTH_LONG)
@@ -150,24 +149,6 @@ public class ProfileActivity extends AppCompatActivity {
     private boolean isUserNameValid(String user_name){
        return user_name.matches("[a-zA-z][a-zA-Z ]*");
     }
-
-    private void pushUserToStop(String name, String phone){
-        clearPreviousProfileDetails();
-
-        DatabaseReference myRef = database.getReference("stops/"+ SharedPreferenceHelper.fetchStopName(this) +"/users/"+name);
-        myRef.setValue(phone);
-    }
-
-    private void clearPreviousProfileDetails(){
-        String username = SharedPreferenceHelper.fetchUserName(ProfileActivity.this);
-        if(!username.equals("")){
-            DatabaseReference myRef = database.getReference("stops/"+ SharedPreferenceHelper.fetchStopName(this) +"/users/"+username);
-            myRef.removeValue();
-            DatabaseReference signupRef = database.getReference("user_signup/"+SharedPreferenceHelper.fetchCompanyCode(ProfileActivity.this)+"/"+SharedPreferenceHelper.fetchUserPhoneNumber(ProfileActivity.this));
-            signupRef.removeValue();
-        }
-    }
-
 
     private void saveProfileAndJumpToMainActivity(String name, String phone, String code){
         Snackbar.make(findViewById(android.R.id.content), "Profile Update successful", Snackbar.LENGTH_LONG)
