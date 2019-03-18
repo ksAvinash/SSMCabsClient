@@ -1,13 +1,17 @@
 package com.labs.ssmcabs.client;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.os.Handler;
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,11 +36,13 @@ public class QRCodeScannerActivity extends AppCompatActivity implements ZXingSca
 
     private final String TAG = "QR_SCAN";
     ProgressDialog progressDialog;
+    InterstitialAd mInterstitialAd;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrcode_scanner);
         initializeViews();
+        loadNewAd();
     }
 
 
@@ -55,6 +61,7 @@ public class QRCodeScannerActivity extends AppCompatActivity implements ZXingSca
     protected void onPause() {
         super.onPause();
         mScannerView.stopCamera();
+        finish();
     }
 
     @Override
@@ -91,14 +98,7 @@ public class QRCodeScannerActivity extends AppCompatActivity implements ZXingSca
 
         if(isQRValid){
             updateBoardedTime();
-            Snackbar.make(findViewById(android.R.id.content), "Boarded successfully", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    finish();
-                }
-            }, 2000);
+            displaySuccessAlertDialog();
         }
         else{
             String reason = (String) values[1];
@@ -134,5 +134,62 @@ public class QRCodeScannerActivity extends AppCompatActivity implements ZXingSca
                 userBoardLogRef.removeEventListener(this);
             }
         });
+    }
+
+    private void displaySuccessAlertDialog(){
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(QRCodeScannerActivity.this);
+        builder1.setMessage("Boarding successful");
+        builder1.setCancelable(false);
+
+        builder1.setPositiveButton(
+                "Okay",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                        showAd();
+                    }
+                });
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
+    }
+
+    private void loadNewAd(){
+        mInterstitialAd = new InterstitialAd(QRCodeScannerActivity.this);
+        mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
+        mInterstitialAd.loadAd(new AdRequest.Builder().build());
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
+            }
+
+            @Override
+            public void onAdFailedToLoad(int errorCode) {
+                finish();
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when the ad is displayed.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                // Code to be executed when the user has left the app.
+            }
+
+            @Override
+            public void onAdClosed() {
+                finish();
+            }
+        });
+    }
+
+    private void showAd(){
+        if (mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+        } else {
+            Log.w("FB_ADS", "The interstitial wasn't loaded yet.");
+        }
     }
 }

@@ -99,7 +99,6 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_main);
         initializeViews();
-        loadNewAd();
         requestPermissions();
     }
 
@@ -550,21 +549,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
-    private void loadNewAd(){
-        mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
-        mInterstitialAd.loadAd(new AdRequest.Builder().build());
-    }
-
-    private void showAd(){
-        if (mInterstitialAd.isLoaded()) {
-            mInterstitialAd.show();
-            loadNewAd();
-        } else {
-            Log.w("FB_ADS", "The interstitial wasn't loaded yet.");
-        }
-    }
 
     private void startProgressDialog(String message){
         progressDialog.setMessage(message);
