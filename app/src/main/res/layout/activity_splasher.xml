@@ -37,4 +37,14 @@
 
 
 
+
+    <ImageView
+        android:layout_margin="10dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/developer_logo_mini"
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
+
 </RelativeLayout>
