@@ -163,6 +163,8 @@ public class ProfileActivity extends AppCompatActivity {
         if(!username.equals("")){
             DatabaseReference myRef = database.getReference("stops/"+ SharedPreferenceHelper.fetchStopName(this) +"/users/"+username);
             myRef.removeValue();
+            DatabaseReference signupRef = database.getReference("user_signup/"+SharedPreferenceHelper.fetchCompanyCode(ProfileActivity.this)+"/"+SharedPreferenceHelper.fetchUserPhoneNumber(ProfileActivity.this));
+            signupRef.removeValue();
         }
     }
 
