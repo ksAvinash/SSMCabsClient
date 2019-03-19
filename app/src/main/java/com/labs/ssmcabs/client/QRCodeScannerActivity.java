@@ -176,6 +176,7 @@ public class QRCodeScannerActivity extends AppCompatActivity implements ZXingSca
             @Override
             public void onAdLeftApplication() {
                 // Code to be executed when the user has left the app.
+                finish();
             }
 
             @Override

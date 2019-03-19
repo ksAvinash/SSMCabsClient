@@ -48,8 +48,10 @@ public class BoardingAuditService extends IntentService {
             String company_code = SharedPreferenceHelper.fetchCompanyCode(this);
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             final SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            DatabaseReference boardingAuditRef = database.getReference("boarding_audits/"+company_code+"/"+stop_name+"/"+date_formatter.format(date)+"/"+username);
-            boardingAuditRef.setValue(phone_number);
+            DatabaseReference boardingCompanyAuditRef = database.getReference("boarding_audits/company_codes/"+company_code+"/"+stop_name+"/"+date_formatter.format(date)+"/"+username);
+            boardingCompanyAuditRef.setValue(phone_number);
+            DatabaseReference boardingStopAuditRef = database.getReference("boarding_audits/stops/"+stop_name+"/"+date_formatter.format(date)+"/"+username);
+            boardingStopAuditRef.setValue(phone_number);
         }
     }
 }
