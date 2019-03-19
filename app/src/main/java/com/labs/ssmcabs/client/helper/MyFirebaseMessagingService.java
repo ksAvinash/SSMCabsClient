@@ -22,14 +22,14 @@ import com.labs.ssmcabs.client.SplasherActivity;
 import java.util.Calendar;
 import java.util.Date;
 
-import static com.labs.ssmcabs.client.helper.UpdateBoardedTimeService.ACTION_BOARDED;
+import static com.labs.ssmcabs.client.helper.BoardingAuditService.ACTION_BOARDING;
+import static com.labs.ssmcabs.client.helper.BoardingAuditService.ACTION_NOT_BOARDING;
+
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "FB_MSG_SERVICE";
 
     private static final int NOTIFICATION_ID = 789532;
-    public static final String ACTION_BOARDING = "Yes";
-    public static final String ACTION_NOT_BOARDING = "No";
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -46,9 +46,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void publishAskBoardingNotification(String title){
         Intent boardingIntent = new Intent(this, BoardingAuditService.class)
-                .setAction(ACTION_BOARDED);
+                .setAction(ACTION_BOARDING);
         PendingIntent boardingPendingIntent = PendingIntent.getService(this, 345,
                 boardingIntent, PendingIntent.FLAG_ONE_SHOT);
+
+        Intent notBoardingIntent = new Intent(this, BoardingAuditService.class)
+                .setAction(ACTION_NOT_BOARDING);
+        PendingIntent notBoardingPendingIntent = PendingIntent.getService(this, 345,
+                notBoardingIntent, PendingIntent.FLAG_ONE_SHOT);
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "boarding today");
@@ -58,12 +63,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setSmallIcon(R.drawable.notification_icon)
                 .setPriority(Notification.PRIORITY_MAX)
                 .setContentTitle(title)
-                .setContentText("all_users")
                 .setWhen(System.currentTimeMillis())
-                .setAutoCancel(true)
+                .setAutoCancel(false)
                 .setContentInfo("Info");
         notificationBuilder.addAction(R.drawable.notification_icon, ACTION_BOARDING, boardingPendingIntent);
-        notificationBuilder.addAction(R.drawable.notification_icon, ACTION_NOT_BOARDING, boardingPendingIntent);
+        notificationBuilder.addAction(R.drawable.notification_icon, ACTION_NOT_BOARDING, notBoardingPendingIntent);
         notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
     }
 

@@ -46,7 +46,7 @@ public class SplasherActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance();
         FirebaseMessaging.getInstance().subscribeToTopic("all_users");
 
-        if(SharedPreferenceHelper.isStopSetupComplete(SplasherActivity.this)){
+        if(SharedPreferenceHelper.isUserSetupComplete(SplasherActivity.this)){
             updateStopDriverNumber();
 
             timer_15 = new Timer();

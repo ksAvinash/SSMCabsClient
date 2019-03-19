@@ -19,8 +19,8 @@ public class BoardingAuditService extends IntentService {
         super(BoardingAuditService.class.getSimpleName());
     }
     private static final int NOTIFICATION_ID = 789532;
-    public static final String ACTION_BOARDING = "Yes";
-    public static final String ACTION_NOT_BOARDING = "No";
+    public static final String ACTION_BOARDING = "Boarding";
+    public static final String ACTION_NOT_BOARDING = "Not Boarding";
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -45,9 +45,10 @@ public class BoardingAuditService extends IntentService {
             String stop_name = SharedPreferenceHelper.fetchStopName(this);
             String username = SharedPreferenceHelper.fetchUserName(this);
             String phone_number = SharedPreferenceHelper.fetchUserPhoneNumber(this);
+            String company_code = SharedPreferenceHelper.fetchCompanyCode(this);
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             final SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            DatabaseReference boardingAuditRef = database.getReference("boarding_audits/"+stop_name+"/"+date_formatter.format(date)+"/"+username);
+            DatabaseReference boardingAuditRef = database.getReference("boarding_audits/"+company_code+"/"+stop_name+"/"+date_formatter.format(date)+"/"+username);
             boardingAuditRef.setValue(phone_number);
         }
     }
