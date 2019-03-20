@@ -39,7 +39,7 @@ public class BoardingAuditService extends IntentService {
     }
 
 
-    public void updateBoardingAudit(){
+    private void updateBoardingAudit(){
         if(SharedPreferenceHelper.isUserSetupComplete(this)){
             Date date = new Date();
             String stop_name = SharedPreferenceHelper.fetchStopName(this);

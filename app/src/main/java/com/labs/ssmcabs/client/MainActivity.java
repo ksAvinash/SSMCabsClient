@@ -39,7 +39,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -59,7 +58,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.labs.ssmcabs.client.helper.BoardingAuditService;
 import com.labs.ssmcabs.client.helper.CoordinateAdapter;
 import com.labs.ssmcabs.client.helper.DistanceAndDurationAdapter;
 import com.labs.ssmcabs.client.helper.HttpHelper;
@@ -88,7 +86,6 @@ public class MainActivity extends AppCompatActivity
     ArcMenu arcMenu;
     private Polyline currentPolyline;
     boolean isPathSet = false;
-    InterstitialAd mInterstitialAd;
     private final int REQUEST_CODE_CAMERA_PERMISSIONS = 7328;
     ProgressDialog progressDialog;
     @Override
