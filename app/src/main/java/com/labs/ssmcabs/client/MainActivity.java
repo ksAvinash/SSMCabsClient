@@ -59,6 +59,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.labs.ssmcabs.client.helper.BoardingAuditService;
 import com.labs.ssmcabs.client.helper.CoordinateAdapter;
 import com.labs.ssmcabs.client.helper.DistanceAndDurationAdapter;
 import com.labs.ssmcabs.client.helper.HttpHelper;
@@ -192,6 +193,11 @@ public class MainActivity extends AppCompatActivity
                 intent = new Intent(MainActivity.this, FeedbackActivity.class);
                 startActivity(intent);
                 break;
+
+            case R.id.action_boarding_today:
+                Snackbar.make(findViewById(android.R.id.content), "Great, we've intimated the driver!", Snackbar.LENGTH_LONG).show();
+                updateBoardingAudit();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -221,6 +227,55 @@ public class MainActivity extends AppCompatActivity
             }
         }, 10000);
     }
+
+    public void updateBoardingAudit(boolean new_state){
+        if(SharedPreferenceHelper.isUserSetupComplete(MainActivity.this)){
+            Date date = new Date();
+            String stop_name = SharedPreferenceHelper.fetchStopName(MainActivity.this);
+            String username = SharedPreferenceHelper.fetchUserName(MainActivity.this);
+            String phone_number = SharedPreferenceHelper.fetchUserPhoneNumber(MainActivity.this);
+            String company_code = SharedPreferenceHelper.fetchCompanyCode(MainActivity.this);
+
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            final SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+            DatabaseReference boardingCompanyAuditRef = database.getReference("boarding_audits/company_codes/"+company_code+"/"+stop_name+"/"+date_formatter.format(date)+"/"+username);
+            DatabaseReference boardingStopAuditRef = database.getReference("boarding_audits/stops/"+stop_name+"/"+date_formatter.format(date)+"/"+username);
+
+            if(new_state){
+                boardingCompanyAuditRef.setValue(phone_number);
+                boardingStopAuditRef.setValue(phone_number);
+            }else{
+                boardingCompanyAuditRef.setValue("0000000000");
+                boardingStopAuditRef.setValue("0000000000");
+            }
+        }
+    }
+
+    public void updateBoardingAudit(){
+        if(SharedPreferenceHelper.isUserSetupComplete(MainActivity.this)){
+            Date date = new Date();
+            String stop_name = SharedPreferenceHelper.fetchStopName(MainActivity.this);
+            String username = SharedPreferenceHelper.fetchUserName(MainActivity.this);
+            String phone_number = SharedPreferenceHelper.fetchUserPhoneNumber(MainActivity.this);
+            String company_code = SharedPreferenceHelper.fetchCompanyCode(MainActivity.this);
+
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            final SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+            DatabaseReference boardingCompanyAuditRef = database.getReference("boarding_audits/company_codes/"+company_code+"/"+stop_name+"/"+date_formatter.format(date)+"/"+username);
+            DatabaseReference boardingStopAuditRef = database.getReference("boarding_audits/stops/"+stop_name+"/"+date_formatter.format(date)+"/"+username);
+
+            if(SharedPreferenceHelper.fetchPhoneNumberVisibilityStatus(MainActivity.this)){
+                boardingCompanyAuditRef.setValue(phone_number);
+                boardingStopAuditRef.setValue(phone_number);
+            }else{
+                boardingCompanyAuditRef.setValue("0000000000");
+                boardingStopAuditRef.setValue("0000000000");
+            }
+        }
+    }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -323,18 +378,14 @@ public class MainActivity extends AppCompatActivity
 
     private void setPhoneVisibilitySwitchState(boolean new_state){
         SharedPreferenceHelper.savePhoneNumberVisibilityStatus(MainActivity.this, new_state);
-
-        DatabaseReference userRef = database.getReference("stops/"+SharedPreferenceHelper.fetchStopName(MainActivity.this)
-                +"/users/"+SharedPreferenceHelper.fetchUserName(MainActivity.this));
         if(new_state){
-            userRef.setValue(SharedPreferenceHelper.fetchUserPhoneNumber(MainActivity.this));
             phoneVisibilitySwitch.setText("Phone number visible to driver");
             phoneVisibilitySwitch.setChecked(true);
         }else{
-            userRef.setValue("0000000000");
             phoneVisibilitySwitch.setText("Phone number not shown");
             phoneVisibilitySwitch.setChecked(false);
         }
+        updateBoardingAudit(new_state);
     }
 
 

@@ -39,19 +39,27 @@ public class BoardingAuditService extends IntentService {
     }
 
 
-    private void updateBoardingAudit(){
+    public void updateBoardingAudit(){
         if(SharedPreferenceHelper.isUserSetupComplete(this)){
             Date date = new Date();
             String stop_name = SharedPreferenceHelper.fetchStopName(this);
             String username = SharedPreferenceHelper.fetchUserName(this);
             String phone_number = SharedPreferenceHelper.fetchUserPhoneNumber(this);
             String company_code = SharedPreferenceHelper.fetchCompanyCode(this);
+
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             final SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
             DatabaseReference boardingCompanyAuditRef = database.getReference("boarding_audits/company_codes/"+company_code+"/"+stop_name+"/"+date_formatter.format(date)+"/"+username);
-            boardingCompanyAuditRef.setValue(phone_number);
             DatabaseReference boardingStopAuditRef = database.getReference("boarding_audits/stops/"+stop_name+"/"+date_formatter.format(date)+"/"+username);
-            boardingStopAuditRef.setValue(phone_number);
+
+            if(SharedPreferenceHelper.fetchPhoneNumberVisibilityStatus(this)){
+                boardingCompanyAuditRef.setValue(phone_number);
+                boardingStopAuditRef.setValue(phone_number);
+            }else{
+                boardingCompanyAuditRef.setValue("0000000000");
+                boardingStopAuditRef.setValue("0000000000");
+            }
         }
     }
 }
