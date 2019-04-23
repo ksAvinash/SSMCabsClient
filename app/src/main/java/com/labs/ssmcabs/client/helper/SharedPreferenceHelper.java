@@ -184,7 +184,7 @@ public class SharedPreferenceHelper {
 
     public static boolean fetchQRConfiguration(Context context){
         SharedPreferences sharedPreferences = context.getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
-        return sharedPreferences.getBoolean("dynamic_qr_code", false);
+        return sharedPreferences.getBoolean("dynamic_qr_code", true);
     }
 
 }
