@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.labs.ssmcabs.client.helper.adapters.DistanceAndDurationAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;

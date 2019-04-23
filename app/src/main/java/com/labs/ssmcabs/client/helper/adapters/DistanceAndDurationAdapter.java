@@ -1,4 +1,4 @@
-package com.labs.ssmcabs.client.helper;
+package com.labs.ssmcabs.client.helper.adapters;
 
 public class DistanceAndDurationAdapter {
     private String distance, duration;

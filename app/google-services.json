@@ -15,7 +15,7 @@
       },
       "oauth_client": [
         {
-          "client_id": "540903784668-tm360bvrvscsl3j1r0a9vvhkn9hesnvf.apps.googleusercontent.com",
+          "client_id": "540903784668-nivuppomf0ca28e5jihek10l6j1tt26t.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.labs.ssmcabs.client",
@@ -23,8 +23,20 @@
           }
         },
         {
-          "client_id": "540903784668-irvnkvjakfubsrj19fbdv5ksmi53jr48.apps.googleusercontent.com",
-          "client_type": 3
+          "client_id": "540903784668-le3upajhc6rioibhr2n1vcn97nt6tnbf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.labs.ssmcabs.client",
+            "certificate_hash": "465840382943d36637c3430136dbb8594d2c4fe9"
+          }
+        },
+        {
+          "client_id": "540903784668-iq2ba2bs5t8ge3h9muediplurf52o4n9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.labs.ssmcabs.client",
+            "certificate_hash": "a554467972ea3aef7127e8d793e2e75b3abeec2b"
+          }
         }
       ],
       "api_key": [
@@ -33,20 +45,13 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 2,
           "other_platform_oauth_client": [
             {
               "client_id": "540903784668-irvnkvjakfubsrj19fbdv5ksmi53jr48.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
-        },
-        "ads_service": {
-          "status": 2
         }
       }
     },
@@ -65,10 +70,6 @@
             "package_name": "com.labs.ssmcabs.driver",
             "certificate_hash": "14aa962163f64a4def80d5940b9615d68c53c342"
           }
-        },
-        {
-          "client_id": "540903784668-irvnkvjakfubsrj19fbdv5ksmi53jr48.apps.googleusercontent.com",
-          "client_type": 3
         }
       ],
       "api_key": [
@@ -77,20 +78,13 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 2,
           "other_platform_oauth_client": [
             {
               "client_id": "540903784668-irvnkvjakfubsrj19fbdv5ksmi53jr48.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
-        },
-        "ads_service": {
-          "status": 2
         }
       }
     }

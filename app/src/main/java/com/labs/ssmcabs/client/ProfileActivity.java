@@ -21,7 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.labs.ssmcabs.client.helper.ProfileAdapter;
+import com.labs.ssmcabs.client.helper.adapters.ProfileAdapter;
 import com.labs.ssmcabs.client.helper.SharedPreferenceHelper;
 
 public class ProfileActivity extends AppCompatActivity {

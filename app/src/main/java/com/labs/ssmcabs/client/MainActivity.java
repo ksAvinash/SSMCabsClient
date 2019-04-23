@@ -39,7 +39,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -58,8 +57,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.labs.ssmcabs.client.helper.CoordinateAdapter;
-import com.labs.ssmcabs.client.helper.DistanceAndDurationAdapter;
+import com.labs.ssmcabs.client.helper.CommonHelper;
+import com.labs.ssmcabs.client.helper.adapters.CoordinateAdapter;
+import com.labs.ssmcabs.client.helper.adapters.DistanceAndDurationAdapter;
 import com.labs.ssmcabs.client.helper.HttpHelper;
 import com.labs.ssmcabs.client.helper.PolyLineTaskLoadedCallback;
 import com.labs.ssmcabs.client.helper.SharedPreferenceHelper;
@@ -137,8 +137,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
+    protected void onResume() {
+        super.onResume();
         isPathSet = false;
     }
 
@@ -443,7 +443,7 @@ public class MainActivity extends AppCompatActivity
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         displayLastUpdated();
     }
@@ -614,7 +614,7 @@ public class MainActivity extends AppCompatActivity
         final Date date = new Date();
         final SimpleDateFormat month_formatter = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
         final SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd a", Locale.getDefault());
-        final DatabaseReference userBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchCompanyCode(MainActivity.this)+"/user_logs/"+SharedPreferenceHelper.fetchUserPhoneNumber(MainActivity.this)+"/"+
+        final DatabaseReference userBoardLogRef = database.getReference("boarding_data/user_board_logs/"+SharedPreferenceHelper.fetchCompanyCode(MainActivity.this)+"/user_logs/"+SharedPreferenceHelper.fetchUserPhoneNumber(MainActivity.this)+"/"+
                 month_formatter.format(date)+"/"+date_formatter.format(date)+"/");
         userBoardLogRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -623,8 +623,11 @@ public class MainActivity extends AppCompatActivity
                 stopProgressDialog();
 
                 if(dataSnapshot.getValue() == null){
-                    Intent intent = new Intent(MainActivity.this, QRCodeScannerActivity.class);
-                    startActivity(intent);
+                    if(SharedPreferenceHelper.fetchQRConfiguration(MainActivity.this)){
+                        Intent intent = new Intent(MainActivity.this, QRCodeScannerActivity.class);
+                        startActivity(intent);
+                    }else
+                        CommonHelper.updateBoardedTime(MainActivity.this);
                 }else{
                     Snackbar.make(findViewById(android.R.id.content), "Your activity has already recorded for the trip!", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();

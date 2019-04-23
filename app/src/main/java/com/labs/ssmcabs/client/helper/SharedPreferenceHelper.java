@@ -4,6 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.labs.ssmcabs.client.helper.adapters.BoardingConfigurationAdapter;
+import com.labs.ssmcabs.client.helper.adapters.ProfileAdapter;
+import com.labs.ssmcabs.client.helper.adapters.stopAdapter;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -176,6 +180,11 @@ public class SharedPreferenceHelper {
         editor.putBoolean("otp_to_client", adapter.isOtp_to_client());
         editor.putBoolean("otp_to_driver", adapter.isOtp_to_driver());
         editor.apply();
+    }
+
+    public static boolean fetchQRConfiguration(Context context){
+        SharedPreferences sharedPreferences = context.getSharedPreferences("ssm_cabs_client_v1", MODE_PRIVATE);
+        return sharedPreferences.getBoolean("dynamic_qr_code", false);
     }
 
 }

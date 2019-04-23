@@ -20,6 +20,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.labs.ssmcabs.client.helper.BackendResponseCallback;
+import com.labs.ssmcabs.client.helper.CommonHelper;
 import com.labs.ssmcabs.client.helper.HttpHelper;
 import com.labs.ssmcabs.client.helper.SharedPreferenceHelper;
 
@@ -97,7 +98,7 @@ public class QRCodeScannerActivity extends AppCompatActivity implements ZXingSca
         stopProgressDialog();
 
         if(isQRValid){
-            updateBoardedTime();
+            CommonHelper.updateBoardedTime(QRCodeScannerActivity.this);
             displaySuccessAlertDialog();
         }
         else{
@@ -105,35 +106,6 @@ public class QRCodeScannerActivity extends AppCompatActivity implements ZXingSca
             Snackbar.make(findViewById(android.R.id.content), reason, Snackbar.LENGTH_LONG).show();
             mScannerView.resumeCameraPreview(QRCodeScannerActivity.this);
         }
-    }
-
-    private void updateBoardedTime(){
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final Date date = new Date();
-        final SimpleDateFormat month_formatter = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
-        final SimpleDateFormat date_formatter = new SimpleDateFormat("yyyy-MM-dd a", Locale.getDefault());
-
-        final DatabaseReference userBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchCompanyCode(QRCodeScannerActivity.this)+"/user_logs/"+SharedPreferenceHelper.fetchUserPhoneNumber(QRCodeScannerActivity.this)+"/"+
-                month_formatter.format(date)+"/"+date_formatter.format(date)+"/");
-        final DatabaseReference monthBoardLogRef = database.getReference("user_board_logs/"+SharedPreferenceHelper.fetchCompanyCode(QRCodeScannerActivity.this)+"/month_logs/"+month_formatter.format(date)+"/"+date_formatter.format(date)+"/"
-                +SharedPreferenceHelper.fetchUserPhoneNumber(QRCodeScannerActivity.this));
-        userBoardLogRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                userBoardLogRef.removeEventListener(this);
-
-                if(dataSnapshot.getValue() == null){
-                    SimpleDateFormat time_formatter = new SimpleDateFormat("yyyy-MM-dd h:mm:ss a", Locale.getDefault());
-                    userBoardLogRef.setValue(time_formatter.format(date));
-                    monthBoardLogRef.setValue(time_formatter.format(date));
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                userBoardLogRef.removeEventListener(this);
-            }
-        });
     }
 
     private void displaySuccessAlertDialog(){

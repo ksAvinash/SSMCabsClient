@@ -1,4 +1,4 @@
-package com.labs.ssmcabs.client.helper;
+package com.labs.ssmcabs.client.helper.adapters;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

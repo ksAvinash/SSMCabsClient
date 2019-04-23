@@ -11,8 +11,8 @@ android {
         applicationId "com.labs.ssmcabs.client"
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -41,7 +41,7 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-database:16.1.0'
     implementation 'com.google.android.gms:play-services-maps:16.1.0'
-    implementation 'com.google.firebase:firebase-messaging:17.5.0'
+    implementation 'com.google.firebase:firebase-messaging:17.6.0'
     implementation 'com.google.firebase:firebase-core:16.0.8'
     implementation 'com.google.firebase:firebase-ads:17.2.0'
 
